@@ -1,0 +1,6 @@
+I:\GAMES\MYPROG\Straight Racing\bin\Debug\ConsoleApplication.exe
+I:\GAMES\MYPROG\Straight Racing\bin\Debug\ConsoleApplication.pdb
+I:\GAMES\MYPROG\Straight Racing\obj\x86\Debug\ALB-1.0.csprojResolveAssemblyReference.cache
+I:\GAMES\MYPROG\Straight Racing\obj\x86\Debug\ALB-1.0.csproj.CoreCompileInputs.cache
+I:\GAMES\MYPROG\Straight Racing\obj\x86\Debug\ConsoleApplication.exe
+I:\GAMES\MYPROG\Straight Racing\obj\x86\Debug\ConsoleApplication.pdb
