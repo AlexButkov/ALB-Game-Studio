@@ -5,7 +5,7 @@ namespace ALB
     /// <summary>
     /// Базовый класс для объекта в игре
     /// </summary>
-    class SceneObject : Model
+    class ObjectSingle : Model
     {
         public int X { get { return x; } set { CheckX(); } }
         public int Y { get { return y; } set { CheckY(); } }
@@ -25,11 +25,11 @@ namespace ALB
 
         //========
         /// <summary>
-        /// Экземпляр базового класса для объекта в игре (в первом параметре указывается объект перечисляемого типа "Scene", иначе создается объект с нулевыми значениями)
+        /// конструктор экземпляра базового класса для объекта в игре (в первом параметре указывается объект перечисляемого типа "Scene", иначе создается объект с нулевыми значениями)
         /// </summary>
-        public SceneObject() { }
+        public ObjectSingle() { }
         /// <summary>
-        /// Экземпляр базового класса для объекта в игре (в первом параметре указывается объект перечисляемого типа "Scene", иначе создается объект с нулевыми значениями)
+        /// конструктор экземпляра базового класса для объекта в игре (в первом параметре указывается объект перечисляемого типа "Scene", иначе создается объект с нулевыми значениями)
         /// </summary>
         /// <param name="objectType">тип объекта</param>
         /// <param name="parentObject">ограничивающий движение объект</param>
@@ -38,11 +38,11 @@ namespace ALB
         /// <param name="width">ширина</param>
         /// <param name="height">высота</param>
         /// <param name="color">цвет</param>
-        public SceneObject(Scene objectType, SceneObject parentObject = null, PositionX x = 0, PositionY y = 0, int width = 0, int height = 0, ConsoleColor color = 0)
+        public ObjectSingle(Scene objectType, ObjectSingle parentObject = null, PositionX x = 0, PositionY y = 0, int width = 0, int height = 0, ConsoleColor color = 0)
         {
             switch (objectType)
             {   //характеристики объектов по умолчанию
-                case Scene.Car:      { this.x = x != 0 ? (int)x : 40; this.y = y != 0 ? (int)y : 20; this.width = width != 0 ? width : 10; this.height = height != 0 ? height : 10; this.color = color != 0 ? color : ConsoleColor.Blue; } break;
+                case Scene.Car:      { this.x = x != 0 ? (int)x : 40; this.y = y != 0 ? (int)y : 20; this.width = width != 0 ? width : 12; this.height = height != 0 ? height : 08; this.color = color != 0 ? color : ConsoleColor.Blue; } break;
                 case Scene.Wheel:    { this.x = x != 0 ? (int)x : 39; this.y = y != 0 ? (int)y : 21; this.width = width != 0 ? width : 01; this.height = height != 0 ? height : 01; this.color = color != 0 ? color : ConsoleColor.DarkGray; } break;
                 case Scene.Line:     { this.x = x != 0 ? (int)x : 20; this.y = y != 0 ? (int)y : 10; this.width = width != 0 ? width : 02; this.height = height != 0 ? height : 05; this.color = color != 0 ? color : ConsoleColor.Gray; } break;
                 case Scene.House:    { this.x = x != 0 ? (int)x : 05; this.y = y != 0 ? (int)y : 20; this.width = width != 0 ? width : 15; this.height = height != 0 ? height : 15; this.color = color != 0 ? color : ConsoleColor.DarkYellow; } break;
@@ -99,16 +99,16 @@ namespace ALB
             switch (PosT)
             {
                 case 0:
-                    pos = Math.Max(Math.Min(MaxVal - newSum, Math.Abs(Pos)), 0);
+                    pos = Math.Max(Math.Min(MaxVal - newSum / 2, Math.Abs(Pos)), 0 + newSum / 2); // убрать модуль
                     return;
                 case 1:
-                    pos = Math.Abs(0);//Buffer
+                    pos = Math.Abs(0) + newSum / 2;//Buffer
                     break;
                 case 2:
-                    pos = Math.Max(MaxVal / 2 - newSum / 2, 0);
+                    pos = Math.Max(MaxVal / 2, 0); // - newSum / 2
                     break;
                 case 3:
-                    pos = Math.Max(MaxVal - newSum - Math.Abs(0), 0);//BufferX
+                    pos = Math.Max(MaxVal - newSum / 2 - Math.Abs(0), 0);//BufferX
                     break;
                 default:
                     goto case 0;

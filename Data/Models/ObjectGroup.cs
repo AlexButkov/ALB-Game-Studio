@@ -5,7 +5,7 @@ namespace ALB
     /// <summary>
     /// Класс для группы объектов в игре
     /// </summary>
-    class SceneGroup : SceneObject
+    class ObjectGroup : ObjectSingle
     {
         public int GapX { get { return gapX; } set { CheckX(); gapX =  Math.Abs(value); } }
         public int GapY { get { return gapY; } set { CheckY(); gapY =  Math.Abs(value); } }
@@ -19,11 +19,11 @@ namespace ALB
 
         //========
         /// <summary>
-        /// Экземпляр класса для группы объектов в игре (в первом параметре указывается объект перечисляемого типа "Scene", иначе создается объект с нулевыми значениями)
+        /// конструктор экземпляра класса для группы объектов в игре (в первом параметре указывается объект перечисляемого типа "Scene", иначе создается объект с нулевыми значениями)
         /// </summary>
         //public MultiObject() { } // : base() { }
         /// <summary>
-        /// Экземпляр класса для группы объектов (в первом параметре указывается объект перечисляемого типа "Scene", иначе создается объект с нулевыми значениями)
+        /// конструктор экземпляра класса для группы объектов (в первом параметре указывается объект перечисляемого типа "Scene", иначе создается объект с нулевыми значениями)
         /// </summary>
         /// <param name="ObjectType">тип объекта</param>
         /// <param name="x">позиция по оси X</param>
@@ -35,7 +35,7 @@ namespace ALB
         /// <param name="gapY"></param>
         /// <param name="countX"></param>
         /// <param name="countY"></param>
-        public SceneGroup(Scene ObjectType, SceneObject parentObject = null , PositionX x = 0, PositionY y = 0, int width = 0, int height = 0, ConsoleColor color = 0, int gapX = 0 , int gapY = 0, int countX = 0, int countY = 0)
+        public ObjectGroup(Scene ObjectType, ObjectSingle parentObject = null , PositionX x = 0, PositionY y = 0, int width = 0, int height = 0, ConsoleColor color = 0, int gapX = 0 , int gapY = 0, int countX = 0, int countY = 0)
             :base(ObjectType, parentObject, x , y, width, height , color)
         {
             switch (ObjectType)

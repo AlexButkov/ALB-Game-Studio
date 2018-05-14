@@ -9,6 +9,7 @@ namespace ALB
     class View : Model
     {
 
+
         //========
         public View()
         {
@@ -34,7 +35,8 @@ namespace ALB
         //----
         void Create()
         {
-            SceneObject obj = new SceneObject(Scene.Car, null ,PositionX.Middle,PositionY.Middle);
+            ObjectSingle obj = new ObjectSingle(Scene.Car, null ,PositionX.Right,PositionY.Down);
+            new Pos(obj.X, obj.Y);
             ChangeView(obj);
         }
         //========
@@ -43,13 +45,13 @@ namespace ALB
         /// </summary>
         /// <param name="sceneObject">Принимаемый объект</param>
         /// <param name="toDestroy">Удалить объект если "true". (Создать - "false", по умолчанию) </param>
-        public static void ChangeView(SceneObject sceneObject, bool toDestroy = false)
+        public static void ChangeView(ObjectSingle sceneObject, bool toDestroy = false)
         {
-            SceneObject obj = sceneObject;
-            int x = obj.X;
-            int y = obj.Y;
+            ObjectSingle obj = sceneObject;
             int wdt = obj.Width;
             int hgt = obj.Height;
+            int x = obj.X - wdt / 2 ;
+            int y = obj.Y - hgt / 2 ;
             lock (Blocker)
             {
                 Console.BackgroundColor = toDestroy ? DefaultColor : obj.Color;
@@ -71,13 +73,13 @@ namespace ALB
         /// </summary>
         /// <param name="SceneGroup">Принимаемая группа объектов</param>
         /// <param name="toDestroy">Удалить объект если "true". (Создать - "false", по умолчанию) </param>
-        public static void ChangeView(SceneGroup SceneGroup, bool toDestroy = false)
+        public static void ChangeView(ObjectGroup SceneGroup, bool toDestroy = false)
         {
-            SceneGroup obj = SceneGroup;
-            int x = obj.X;
-            int y = obj.Y;
+            ObjectGroup obj = SceneGroup;
             int wdt = obj.Width;
             int hgt = obj.Height;
+            int x = obj.X - wdt / 2;
+            int y = obj.Y - hgt / 2;
             lock (Blocker)
             {
                 Console.BackgroundColor = toDestroy ? DefaultColor : obj.Color;
