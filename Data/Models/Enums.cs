@@ -2,7 +2,7 @@
 
 namespace ALB
 {
-    enum Scene : uint
+    enum ObjectType : int
     {
         Car,
         Wheel,
@@ -10,17 +10,15 @@ namespace ALB
         House,
         Tree
     }
-    enum PositionX : uint
+    enum PosTypeX : int
     {
-        Default,
-        Left,
+        Left=-1,
         Middle,
         Right
     }
-    enum PositionY : uint
+    enum PosTypeY : int
     {
-        Default,
-        Up,
+        Up=-1,
         Middle,
         Down
     }

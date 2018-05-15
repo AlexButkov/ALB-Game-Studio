@@ -22,7 +22,8 @@ namespace ALB
         //========
         void FirstMet()
         {
-            Console.SetWindowSize(MaxWidth, MaxHeight);
+            Console.SetWindowSize(WindowSize.GetX, WindowSize.GetY);
+            Console.SetBufferSize(WindowSize.GetX+1, WindowSize.GetY);//+1: last pixel buffer(буффер для последнего пикселя)
             Console.CursorVisible = false;
             Console.Title = "ALB-1.0";
         }
@@ -35,9 +36,13 @@ namespace ALB
         //----
         void Create()
         {
-            ObjectSingle obj = new ObjectSingle(Scene.Car, null ,PositionX.Right,PositionY.Down);
-            new Pos(obj.X, obj.Y);
-            ChangeView(obj);
+            ObjectSingle obj = new ObjectSingle(ObjectType.Car, 0, new Vector(0f, 0f), new Vector(5f, 5f));
+            bool sw = false;
+            while (true)
+            {
+                ChangeView(obj, sw);
+                sw = !sw;
+            }
         }
         //========
         /// <summary>
@@ -48,10 +53,10 @@ namespace ALB
         public static void ChangeView(ObjectSingle sceneObject, bool toDestroy = false)
         {
             ObjectSingle obj = sceneObject;
-            int wdt = obj.Width;
-            int hgt = obj.Height;
-            int x = obj.X - wdt / 2 ;
-            int y = obj.Y - hgt / 2 ;
+            int wdt = obj.Size.GetX;
+            int hgt = obj.Size.GetY;
+            int x = WindowSize.GetX / 2 + obj.Position.GetX - wdt / 2 ;
+            int y = WindowSize.GetY / 2 + obj.Position.GetY - hgt / 2 ;
             lock (Blocker)
             {
                 Console.BackgroundColor = toDestroy ? DefaultColor : obj.Color;
@@ -59,11 +64,11 @@ namespace ALB
                 {
                     for (int i = 0; i < wdt; i++)
                     {
-                        Console.SetCursorPosition(x + i, y + j);
+                        Console.SetCursorPosition(CheckSizeX(x + i), CheckSizeY(y + j));
                         Console.Write(DefaultSymbol);
                     }
                 }
-                Console.SetCursorPosition(x, y);
+                Console.SetCursorPosition(CheckSizeX(x), CheckSizeY(y));
                 Console.BackgroundColor = DefaultColor;
             }
         }
@@ -76,26 +81,28 @@ namespace ALB
         public static void ChangeView(ObjectGroup SceneGroup, bool toDestroy = false)
         {
             ObjectGroup obj = SceneGroup;
-            int wdt = obj.Width;
-            int hgt = obj.Height;
-            int x = obj.X - wdt / 2;
-            int y = obj.Y - hgt / 2;
+            int wdt = obj.Size.GetX;
+            int hgt = obj.Size.GetY;
+            int x = WindowSize.GetX / 2 + obj.Position.GetX - wdt / 2;
+            int y = WindowSize.GetY / 2 + obj.Position.GetY - hgt / 2;
+            int w = wdt + obj.Gap.GetX;
+            int h = hgt + obj.Gap.GetY;
             lock (Blocker)
             {
                 Console.BackgroundColor = toDestroy ? DefaultColor : obj.Color;
-                for (int l = 0; l < obj.CountY; l++)
+                for (int l = 0; l < obj.Count.GetY; l++)
                 {
-                    for (int k = 0; k < obj.CountX; k++)
+                    for (int k = 0; k < obj.Count.GetX; k++)
                     {
                         for (int j = 0; j < hgt; j++)
                         {
                             for (int i = 0; i < wdt; i++)
                             {
-                                Console.SetCursorPosition(x + i + (wdt + obj.GapX) * k, y + j + (hgt + obj.GapY) * l);
+                                Console.SetCursorPosition(CheckSizeX(x + i + w * k), CheckSizeY(y + j + h * l));
                                 Console.Write(DefaultSymbol);
                             }
                         }
-                        Console.SetCursorPosition(x, y);
+                        Console.SetCursorPosition(CheckSizeX(x), CheckSizeY(y));
                     }
                 }
                 Console.BackgroundColor = DefaultColor;

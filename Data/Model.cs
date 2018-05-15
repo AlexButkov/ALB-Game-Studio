@@ -7,21 +7,23 @@ namespace ALB
 
     class Model
     {
+        /// <summary>(базовый цвет для рендеринга сцены)</summary>
         public const ConsoleColor DefaultColor = ConsoleColor.Black;
-        public static string DefaultSymbol { get; set; } = " ";
-        /// <summary>масштаб окна консоли относительно экрана</summary>
-        public static float WindowScaler { get; set; } = 1.0f;
-        /// <summary>максимальная ширина объектов</summary>
-        public static int MaxWidth { get; set; } = (int)(Console.LargestWindowWidth * WindowScaler);// Console.BufferWidth - 1;
-        /// <summary>максимальная высота объектов</summary>
-        public static int MaxHeight { get; set; } = (int)(Console.LargestWindowHeight * WindowScaler);// Console.BufferHeight - 1; 
-        /// <summary>ширина базовой ячейки координатной сетки</summary>
-        public static int GridWidth { get; set; } = 6;
-        /// <summary>>высота базовой ячейки координатной сетки</summary>
-        public static int GridHeight { get; set; } = 4;
-        /// <summary>объект для поочередного доступа к консоли</summary>
+        /// <summary>(символ для рендеринга сцены)</summary>
+        public static string DefaultSymbol { get; } = " ";
+        /// <summary>(масштаб окна консоли относительно экрана)</summary>
+        public static float WindowScaler { get; } = 1.0f; // <=1
+        /// <summary>(размер окна консоли)</summary>
+        public static Vector WindowSize { get; } = new Vector((int)Math.Abs(Console.LargestWindowWidth * WindowScaler),(int)Math.Abs(Console.LargestWindowHeight * WindowScaler));
+        /// <summary>(масштаб игровой сцены относительно окна консоли)</summary>
+        public static float SceneScaler { get; } = 1.0f; // >=1
+        /// <summary>(размер игровой сцены)</summary>
+        public static Vector SceneSize { get; } = new Vector((int)Math.Abs(WindowSize.GetX * SceneScaler),(int)Math.Abs(WindowSize.GetY * SceneScaler));
+        /// <summary>(размер базовой ячейки координатной сетки)</summary>
+        public static Vector GridSize { get; } = new Vector(6, 4);// >=(3,2)
+        /// <summary>(объект для поочередного доступа к консоли)</summary>
         public static object Blocker { get; set; } = null;
-        /// <summary>начало игры</summary>
+        /// <summary>(начало игры)</summary>
         public MDelegate Starter;
         //========
         public Model() 
@@ -35,9 +37,82 @@ namespace ALB
         /// <param name="value">Принимаемое значение для проверки</param>
         /// <param name="replace">Возвращаемое значение в случае нуля</param>
         /// <returns></returns>
-        public static int NullCheck(int value, int replace = 1)
+        public static int CheckNull(int value, int replace = 1)
         {
             return value != 0 ? value : replace;
+        }
+
+        /// <summary>
+        /// сheck position X overflow (проверка на выход позиции за пределы сцены)
+        /// </summary>
+        /// <param name="Pos">position X</param>
+        protected static int CheckSizeX(int Pos)
+        {
+            return Math.Max(Math.Min(Pos , SceneSize.GetX - 1), 0);
+        }
+
+        /// <summary>
+        /// сheck position Y overflow (проверка на выход позиции за пределы сцены)
+        /// </summary>
+        /// <param name="Pos">position Y</param>
+        protected static int CheckSizeY(int Pos)
+        {
+            return Math.Max(Math.Min(Pos , SceneSize.GetY - 1), 0);
+        }
+
+        /// <summary>
+        /// Конвертирует имя перечисляемого типа SideX в значение для координаты X
+        /// </summary>
+        /// <param name="Side">имя перечисляемого типа SideX</param>
+        /// <param name="ObjectSize">размер объекта</param>
+        /// <returns>значение для координаты X</returns>
+        public static int ConvertPosTypeX(object Side, int ObjectSize)
+        {
+            try
+            {
+                switch ((int)Side)
+                {
+                    case -1:
+                        return ObjectSize / 2 - WindowSize.GetX / 2;//+ Shift
+                    case 0:
+                        return 0;
+                    case 1:
+                        return WindowSize.GetX / 2 - ObjectSize / 2;//- Shift
+                    default:
+                        goto case 0;
+                }
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+        /// <summary>
+        /// Конвертирует имя перечисляемого типа SideY в значение для координаты Y
+        /// </summary>
+        /// <param name="Side">имя перечисляемого типа SideY</param>
+        /// <param name="ObjectSize">размер объекта</param>
+        /// <returns>значение для координаты Y</returns>
+        public static int ConvertPosTypeY(object Side, int ObjectSize)//
+        {
+            try
+            {
+                switch ((int)Side)
+                {
+                    case -1:
+                        return ObjectSize / 2 - WindowSize.GetY / 2;//+ Shift
+                    case 0:
+                        return 0;
+                    case 1:
+                        return WindowSize.GetY / 2 - ObjectSize / 2;//- Shift
+                    default:
+                        goto case 0;
+                }
+            }
+            catch
+            {
+                return 0;
+            }
         }
     }
 }
