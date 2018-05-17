@@ -4,14 +4,24 @@ using System.Collections;
 
 namespace ALB
 {
-    class Program : Controller
+    class Program : View
     {
 
         static void Main()
         {
             new View();
-            //new Controller();
+            
+            /// <summary>
+            /// основной цикл
+            /// </summary>
+            /*void Update()
+            {
+                while (true)
+                {
 
+
+                }
+            }*/
 
             Console.ReadKey();
         }

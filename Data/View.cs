@@ -16,7 +16,7 @@ namespace ALB
             Blocker = new object();
             Starter = null;
             Starter += FirstMet;
-            Starter += CreateThread;
+            Starter += Create; // Thread;
             Starter();
         }
         //========
@@ -36,12 +36,14 @@ namespace ALB
         //----
         void Create()
         {
-            ObjectSingle obj = new ObjectSingle(ObjectType.Car, 0, new Vector(0f, 0f), new Vector(5f, 5f));
+            ObjectSingle obj = new ObjectSingle(ObjType.Car, 1);
             bool sw = false;
             while (true)
             {
+                obj.Position.SetX(obj.Position.GetX+1);
                 ChangeView(obj, sw);
                 sw = !sw;
+                //Console.WriteLine(SceneList[0].State);
             }
         }
         //========
@@ -90,9 +92,9 @@ namespace ALB
             lock (Blocker)
             {
                 Console.BackgroundColor = toDestroy ? DefaultColor : obj.Color;
-                for (int l = 0; l < obj.Count.GetY; l++)
+                for (int l = 0; l < obj.Quant.GetY; l++)
                 {
-                    for (int k = 0; k < obj.Count.GetX; k++)
+                    for (int k = 0; k < obj.Quant.GetX; k++)
                     {
                         for (int j = 0; j < hgt; j++)
                         {

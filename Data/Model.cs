@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace ALB
 {
@@ -11,25 +12,29 @@ namespace ALB
         public const ConsoleColor DefaultColor = ConsoleColor.Black;
         /// <summary>(символ для рендеринга сцены)</summary>
         public static string DefaultSymbol { get; } = " ";
-        /// <summary>(масштаб окна консоли относительно экрана)</summary>
-        public static float WindowScaler { get; } = 1.0f; // <=1
-        /// <summary>(размер окна консоли)</summary>
-        public static Vector WindowSize { get; } = new Vector((int)Math.Abs(Console.LargestWindowWidth * WindowScaler),(int)Math.Abs(Console.LargestWindowHeight * WindowScaler));
-        /// <summary>(масштаб игровой сцены относительно окна консоли)</summary>
-        public static float SceneScaler { get; } = 1.0f; // >=1
-        /// <summary>(размер игровой сцены)</summary>
-        public static Vector SceneSize { get; } = new Vector((int)Math.Abs(WindowSize.GetX * SceneScaler),(int)Math.Abs(WindowSize.GetY * SceneScaler));
         /// <summary>(размер базовой ячейки координатной сетки)</summary>
         public static Vector GridSize { get; } = new Vector(6, 4);// >=(3,2)
+        /// <summary>(масштаб окна консоли относительно экрана)</summary>
+        public static float WindowScaler { get; } = 1.0f; // <=1
+        //========
+        /// <summary>(размер окна консоли)</summary>
+        public static Vector WindowSize { get; } = new Vector((int)Math.Abs(Console.LargestWindowWidth * WindowScaler), (int)Math.Abs(Console.LargestWindowHeight * WindowScaler));
+        /// <summary>(список объектов на сцене)</summary>
+        public static List<ObjectGroup> SceneList = new List<ObjectGroup>();
+        /// <summary>(3D копия окна для хранения фонового цвета и № слоев)</summary>
+        public static List<ObjectSingle>[,] WindowArray = new List<ObjectSingle>[WindowSize.GetX, WindowSize.GetY];
         /// <summary>(объект для поочередного доступа к консоли)</summary>
         public static object Blocker { get; set; } = null;
         /// <summary>(начало игры)</summary>
         public MDelegate Starter;
         //========
-        public Model() 
+        /*public Model() 
         {
 
-        }
+        }*/
+        //========
+
+
         //========
         /// <summary>
         /// Проверка наличия нулевого значения
@@ -48,7 +53,7 @@ namespace ALB
         /// <param name="Pos">position X</param>
         protected static int CheckSizeX(int Pos)
         {
-            return Math.Max(Math.Min(Pos , SceneSize.GetX - 1), 0);
+            return Math.Max(Math.Min(Pos , WindowSize.GetX - 1), 0);
         }
 
         /// <summary>
@@ -57,7 +62,7 @@ namespace ALB
         /// <param name="Pos">position Y</param>
         protected static int CheckSizeY(int Pos)
         {
-            return Math.Max(Math.Min(Pos , SceneSize.GetY - 1), 0);
+            return Math.Max(Math.Min(Pos , WindowSize.GetY - 1), 0);
         }
 
         /// <summary>

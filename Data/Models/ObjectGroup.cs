@@ -7,11 +7,8 @@ namespace ALB
     /// </summary>
     class ObjectGroup : ObjectSingle
     {
-        public Vector Gap { get { return gap; } set { gap = value; } }
-        public Vector Count { get { return count; } set { count = value; } }
-
-        protected Vector gap = new Vector(0,0);
-        protected Vector count = new Vector(0,0);
+        public Vector Gap { get; set; }
+        public Vector Quant { get; set; }
 
         //========
         /// <summary>
@@ -31,18 +28,21 @@ namespace ALB
         /// <param name="gap">расстояние между объектами в группе по осям X/Y</param>
         /// <param name="count">количество объектов в группе по осям X/Y</param>
         /// <param name="СountGetY"></param>
-        public ObjectGroup(ObjectType objectType, int renderLayer = 0, Vector position = null, Vector size = null, ConsoleColor color = 0, Vector gap = null, Vector count = null, params ObjectSingle[] childObject)
+        public ObjectGroup(ObjType objectType, int renderLayer = 0, Vector position = null, Vector size = null, ConsoleColor color = 0, Vector gap = null, Vector count = null, params ObjectSingle[] childObject)
             :base(objectType, renderLayer, position, size, color, childObject)
         {
+            Gap = new Vector(Inspector, VarType.positionX, VarType.positionY);
+            Quant = new Vector(Inspector, VarType.sizeX, VarType.sizeY);
             switch (objectType)
             {   //характеристики объектов по умолчанию
-                case ObjectType.Car:     { this.gap.SetX(gap != null ? gap.GetX : 05); this.gap.SetY(gap != null ? gap.GetY : 05); this.count.SetX(count != null ? count.GetX : 05); this.count.SetY(count != null ? count.GetY : 05); } break;
-                case ObjectType.Wheel:   { this.gap.SetX(gap != null ? gap.GetX : 05); this.gap.SetY(gap != null ? gap.GetY : 05); this.count.SetX(count != null ? count.GetX : 05); this.count.SetY(count != null ? count.GetY : 05); } break;
-                case ObjectType.Line:    { this.gap.SetX(gap != null ? gap.GetX : 05); this.gap.SetY(gap != null ? gap.GetY : 05); this.count.SetX(count != null ? count.GetX : 05); this.count.SetY(count != null ? count.GetY : 05); } break;
-                case ObjectType.House:   { this.gap.SetX(gap != null ? gap.GetX : 05); this.gap.SetY(gap != null ? gap.GetY : 05); this.count.SetX(count != null ? count.GetX : 05); this.count.SetY(count != null ? count.GetY : 05); } break;
-                case ObjectType.Tree:    { this.gap.SetX(gap != null ? gap.GetX : 05); this.gap.SetY(gap != null ? gap.GetY : 05); this.count.SetX(count != null ? count.GetX : 05); this.count.SetY(count != null ? count.GetY : 05); } break;
+                case ObjType.Car:     { Gap.SetX(gap != null ? gap.GetX : 05); Gap.SetY(gap != null ? gap.GetY : 05); Quant.SetX(count != null ? count.GetX : 05); Quant.SetY(count != null ? count.GetY : 05); } break;
+                case ObjType.Wheel:   { Gap.SetX(gap != null ? gap.GetX : 05); Gap.SetY(gap != null ? gap.GetY : 05); Quant.SetX(count != null ? count.GetX : 05); Quant.SetY(count != null ? count.GetY : 05); } break;
+                case ObjType.Line:    { Gap.SetX(gap != null ? gap.GetX : 05); Gap.SetY(gap != null ? gap.GetY : 05); Quant.SetX(count != null ? count.GetX : 05); Quant.SetY(count != null ? count.GetY : 05); } break;
+                case ObjType.House:   { Gap.SetX(gap != null ? gap.GetX : 05); Gap.SetY(gap != null ? gap.GetY : 05); Quant.SetX(count != null ? count.GetX : 05); Quant.SetY(count != null ? count.GetY : 05); } break;
+                case ObjType.Tree:    { Gap.SetX(gap != null ? gap.GetX : 05); Gap.SetY(gap != null ? gap.GetY : 05); Quant.SetX(count != null ? count.GetX : 05); Quant.SetY(count != null ? count.GetY : 05); } break;
                 default: break;
             }
+            Inspector.SetArrayFull();
         }
         //========
     }
