@@ -24,14 +24,11 @@ namespace ALB
         /// <summary>(3D копия окна для хранения фонового цвета и № слоев)</summary>
         public static List<ObjectSingle>[,] WindowArray = new List<ObjectSingle>[WindowSize.GetX, WindowSize.GetY];
         /// <summary>(объект для поочередного доступа к консоли)</summary>
-        public static object Blocker { get; set; } = null;
-        /// <summary>(начало игры)</summary>
-        public MDelegate Starter;
+        public static object DrawBlocker { get; set; } = new object();
         //========
-        /*public Model() 
+        public Model() 
         {
-
-        }*/
+        }
         //========
 
 
@@ -57,12 +54,25 @@ namespace ALB
         }
 
         /// <summary>
-        /// сheck position Y overflow (проверка на выход позиции за пределы сцены)
+        /// сheck position overflow (проверка на выход позиции за пределы сцены)
         /// </summary>
         /// <param name="Pos">position Y</param>
         protected static int CheckSizeY(int Pos)
         {
             return Math.Max(Math.Min(Pos , WindowSize.GetY - 1), 0);
+        }
+
+        /// <summary>
+        /// сheck position overflow (проверка на выход позиции за пределы сцены)
+        /// </summary>
+        /// <param name="PosX">position X</param>
+        /// <param name="PosY">position Y</param>
+        protected static bool CheckPrint(int PosX, int PosY)
+        {
+            if (PosX > WindowSize.GetX - 1 || PosX < 0 || PosY > WindowSize.GetY - 1 || PosY < 0)
+            return false;
+            else
+            return true;
         }
 
         /// <summary>

@@ -22,8 +22,9 @@ namespace ALB
         Middle,
         Down
     }
-    enum VarType : int
-    { 
+    enum Task : int
+    {
+        isDestroyed,
         layer,
         positionX,
         positionY,
@@ -34,6 +35,16 @@ namespace ALB
         gapY,
         quantX,
         quantY,
-        def //max value variable for ValueArray (переменная с максимальным значением для ValueArray)
+        max //max value variable (переменная с максимальным значением)
+    }
+    enum Draw : int
+    { 
+        some,
+        group,
+        destroy,
+        vector,
+        layer,
+        color,
+        max //max value variable (переменная с максимальным значением)
     }
 }

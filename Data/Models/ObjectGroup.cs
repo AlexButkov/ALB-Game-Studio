@@ -31,8 +31,8 @@ namespace ALB
         public ObjectGroup(ObjType objectType, int renderLayer = 0, Vector position = null, Vector size = null, ConsoleColor color = 0, Vector gap = null, Vector count = null, params ObjectSingle[] childObject)
             :base(objectType, renderLayer, position, size, color, childObject)
         {
-            Gap = new Vector(Inspector, VarType.positionX, VarType.positionY);
-            Quant = new Vector(Inspector, VarType.sizeX, VarType.sizeY);
+            Gap = new Vector(Inspector, Task.gapX, Task.gapY);
+            Quant = new Vector(Inspector, Task.quantX, Task.quantY);
             switch (objectType)
             {   //характеристики объектов по умолчанию
                 case ObjType.Car:     { Gap.SetX(gap != null ? gap.GetX : 05); Gap.SetY(gap != null ? gap.GetY : 05); Quant.SetX(count != null ? count.GetX : 05); Quant.SetY(count != null ? count.GetY : 05); } break;

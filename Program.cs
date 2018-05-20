@@ -4,13 +4,14 @@ using System.Collections;
 
 namespace ALB
 {
-    class Program : View
+    class Program
     {
 
         static void Main()
         {
-            new View();
-            
+            View view = new View();
+            view.Create();
+            //View.StartThread(view.Create);
             /// <summary>
             /// основной цикл
             /// </summary>

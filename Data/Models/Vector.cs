@@ -6,16 +6,39 @@ namespace ALB
     class Vector : Model
     {
         public int GetX { get; private set; }
-        private object x { set { GetX = value.GetType().Name == "Single" ? (int)((float)value * GridSize.GetX) : (int)value; } }
+        protected object x {
+            set
+            {
+                GetX = value.GetType().Name == "Single" ? (int)((float)value * GridSize.GetX) : (int)value;
+                if (prevX != GetX && Inspector != null)
+                {
+                    Inspector.AddTask(TypeX);
+                }
+                prevX = GetX;
+            }
+        }
         public int GetY { get; private set; }
-        private object y { set { GetY = value.GetType().Name == "Single" ? (int)((float)value * GridSize.GetY) : (int)value; } }
+        protected object y {
+            set
+            {
+                GetY = value.GetType().Name == "Single" ? (int)((float)value * GridSize.GetY) : (int)value;
+                if (prevY != GetY && Inspector != null)
+                {
+                    Inspector.AddTask(TypeY);
+                }
+                prevY = GetY;
+            }
+        }
         public Controller Inspector { private get; set; } = null;
-        public VarType? TypeX { private get; set; } = null;
-        public VarType? TypeY { private get; set; } = null;
+        public Task TypeX { private get; set; } = Task.max;
+        public Task TypeY { private get; set; } = Task.max;
+        protected int? prevX = null;
+        protected int? prevY = null;
+
         //====== конструкторы =======
         /// <summary>contain X/Y axes parameters(содержит параметры объекта по осям X/Y)</summary>
         /// <param name="parent">X-axis parameter, calculated using console pixels (параметр по оси X, рассчитываемый по пикселям консоли)</param>  
-        public Vector(Controller inspector = null, VarType typeX = VarType.def, VarType typeY = VarType.def )
+        public Vector(Controller inspector, Task typeX = Task.max, Task typeY = Task.max )
         {
             TypeX = typeX;
             TypeY = typeY;
