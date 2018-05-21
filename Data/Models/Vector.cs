@@ -5,75 +5,56 @@ namespace ALB
     /// <summary>contain X/Y axes parameters (класс для хранения параметров объекта по осям X/Y)</summary>
     class Vector : Model
     {
-        public int GetX { get; private set; }
-        protected object x {
+        public float X
+        {
+            get { return x; }
             set
             {
-                GetX = value.GetType().Name == "Single" ? (int)((float)value * GridSize.GetX) : (int)value;
-                if (prevX != GetX && Inspector != null)
+                x = value;
+                if (prevX != (int)x && Inspector != null)
                 {
                     Inspector.AddTask(TypeX);
+                    prevX = (int)x;
                 }
-                prevX = GetX;
             }
         }
-        public int GetY { get; private set; }
-        protected object y {
+        public float Y
+        {
+            get { return y; }
             set
             {
-                GetY = value.GetType().Name == "Single" ? (int)((float)value * GridSize.GetY) : (int)value;
-                if (prevY != GetY && Inspector != null)
+                y = value;
+                if (prevY != (int)y && Inspector != null)
                 {
                     Inspector.AddTask(TypeY);
+                    prevY = (int)y;
                 }
-                prevY = GetY;
             }
         }
         public Controller Inspector { private get; set; } = null;
-        public Task TypeX { private get; set; } = Task.max;
-        public Task TypeY { private get; set; } = Task.max;
+        public Task TypeX { private get; set; }
+        public Task TypeY { private get; set; }
+        //---
+        protected float x;
+        protected float y;
         protected int? prevX = null;
         protected int? prevY = null;
 
         //====== конструкторы =======
         /// <summary>contain X/Y axes parameters(содержит параметры объекта по осям X/Y)</summary>
-        /// <param name="parent">X-axis parameter, calculated using console pixels (параметр по оси X, рассчитываемый по пикселям консоли)</param>  
-        public Vector(Controller inspector, Task typeX = Task.max, Task typeY = Task.max )
+        /// <param name="x">X-axis parameter, calculated using console pixels (параметр по оси X, рассчитываемый по пикселям консоли)</param> 
+        /// <param name="y">Y-axis parameter, calculated using console pixels (параметр по оси Y, рассчитываемый по пикселям консоли)</param> 
+        /// <param name="inspector">parent controller (родительский контроллер)</param>
+        /// <param name="typeX">X-axis Task-enum parameter (Task-enum параметр по оси X)</param>
+        /// <param name="typeY">Y-axis Task-enum parameter (Task-enum параметр по оси Y)</param>
+        public Vector(int? x = null, int? y = null, Controller inspector = null, Task? typeX = null, Task? typeY = null)
         {
-            TypeX = typeX;
-            TypeY = typeY;
+            TypeX = typeX ?? Task.max;
+            TypeY = typeY ?? Task.max;
             Inspector = inspector;
-            x = 0;
-            y = 0;
+            this.x = x ?? 0;
+            this.y = y ?? 0;
         }
-        /// <summary>contain X/Y axes parameters(содержит параметры объекта по осям X/Y)</summary>
-        /// <param name="X">X-axis parameter, calculated using console pixels (параметр по оси X, рассчитываемый по пикселям консоли)</param>  
-        /// <param name="Y">Y-axis parameter, calculated using console pixels (параметр по оси Y, рассчитываемый по пикселям консоли)</param>
-        public Vector(int X, int Y)
-        { x = X; y = Y; }
-        /// <summary>contain X/Y axes parameters(содержит параметры объекта по осям X/Y)</summary>
-        /// <param name="Xf">X-axis parameter, calculated using GridSize variable (параметр по оси X, рассчитываемый по переменной GridSize)</param>
-        /// <param name="Yf">Y-axis parameter, calculated using GridSize variable (параметр по оси Y, рассчитываемый по переменной GridSize)</param>
-        public Vector(float Xf, float Yf)
-        { x = Xf; y = Yf; }
-        //====== методы присваивания =======        
-        /// <summary>X-axis parameter setter (присваивает значения параметру по оси X)</summary>
-        /// <param name="X">X-axis parameter, calculated using console pixels (параметр по оси X, рассчитываемый по пикселям консоли)</param>  
-        public void SetX(int X)
-        { x = X; }
-        /// <summary>X-axis parameter setter (присваивает значения параметру по оси X)</summary>
-        /// <param name="Xf">X-axis parameter, calculated using GridSize variable (параметр по оси X, рассчитываемый по переменной GridSize)</param>
-        public void SetX(float Xf)
-        { x = Xf; }
-        /// <summary>Y-axis parameter setter Y-axis parameter setter (присваивает значения параметру по оси Y)</summary>
-        /// <param name="Y">Y-axis parameter, calculated using console pixels (параметр по оси Y, рассчитываемый по пикселям консоли)</param>
-        public void SetY(int Y)
-        { y = Y; }
-        /// <summary>Y-axis parameter setter (присваивает значения параметру по оси Y)</summary>
-        /// <param name="Yf">Y-axis parameter, calculated using GridSize variable (параметр по оси Y, рассчитываемый по переменной GridSize)</param>
-        public void SetY(float Yf)
-        { y = Yf; }
-
         //=============
     }
 }

@@ -5,7 +5,6 @@ using System.Collections.Generic;
 
 namespace ALB
 {
-
     class Model
     {
         /// <summary>(базовый цвет для рендеринга сцены)</summary>
@@ -22,7 +21,7 @@ namespace ALB
         /// <summary>(список объектов на сцене)</summary>
         public static List<ObjectGroup> SceneList = new List<ObjectGroup>();
         /// <summary>(3D копия окна для хранения фонового цвета и № слоев)</summary>
-        public static List<ObjectSingle>[,] WindowArray = new List<ObjectSingle>[WindowSize.GetX, WindowSize.GetY];
+        public static List<ObjectSingle>[,] WindowArray = new List<ObjectSingle>[(int)WindowSize.X, (int)WindowSize.Y];
         /// <summary>(объект для поочередного доступа к консоли)</summary>
         public static object DrawBlocker { get; set; } = new object();
         //========
@@ -50,7 +49,7 @@ namespace ALB
         /// <param name="Pos">position X</param>
         protected static int CheckSizeX(int Pos)
         {
-            return Math.Max(Math.Min(Pos , WindowSize.GetX - 1), 0);
+            return Math.Max(Math.Min(Pos , (int)WindowSize.X - 1), 0);
         }
 
         /// <summary>
@@ -59,7 +58,7 @@ namespace ALB
         /// <param name="Pos">position Y</param>
         protected static int CheckSizeY(int Pos)
         {
-            return Math.Max(Math.Min(Pos , WindowSize.GetY - 1), 0);
+            return Math.Max(Math.Min(Pos , (int)WindowSize.Y - 1), 0);
         }
 
         /// <summary>
@@ -69,65 +68,10 @@ namespace ALB
         /// <param name="PosY">position Y</param>
         protected static bool CheckPrint(int PosX, int PosY)
         {
-            if (PosX > WindowSize.GetX - 1 || PosX < 0 || PosY > WindowSize.GetY - 1 || PosY < 0)
+            if (PosX > WindowSize.X - 1 || PosX < 0 || PosY > WindowSize.Y - 1 || PosY < 0)
             return false;
             else
             return true;
-        }
-
-        /// <summary>
-        /// Конвертирует имя перечисляемого типа SideX в значение для координаты X
-        /// </summary>
-        /// <param name="Side">имя перечисляемого типа SideX</param>
-        /// <param name="ObjectSize">размер объекта</param>
-        /// <returns>значение для координаты X</returns>
-        public static int ConvertPosTypeX(object Side, int ObjectSize)
-        {
-            try
-            {
-                switch ((int)Side)
-                {
-                    case -1:
-                        return ObjectSize / 2 - WindowSize.GetX / 2;//+ Shift
-                    case 0:
-                        return 0;
-                    case 1:
-                        return WindowSize.GetX / 2 - ObjectSize / 2;//- Shift
-                    default:
-                        goto case 0;
-                }
-            }
-            catch
-            {
-                return 0;
-            }
-        }
-        /// <summary>
-        /// Конвертирует имя перечисляемого типа SideY в значение для координаты Y
-        /// </summary>
-        /// <param name="Side">имя перечисляемого типа SideY</param>
-        /// <param name="ObjectSize">размер объекта</param>
-        /// <returns>значение для координаты Y</returns>
-        public static int ConvertPosTypeY(object Side, int ObjectSize)//
-        {
-            try
-            {
-                switch ((int)Side)
-                {
-                    case -1:
-                        return ObjectSize / 2 - WindowSize.GetY / 2;//+ Shift
-                    case 0:
-                        return 0;
-                    case 1:
-                        return WindowSize.GetY / 2 - ObjectSize / 2;//- Shift
-                    default:
-                        goto case 0;
-                }
-            }
-            catch
-            {
-                return 0;
-            }
         }
     }
 }

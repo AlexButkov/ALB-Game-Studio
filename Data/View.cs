@@ -10,35 +10,40 @@ namespace ALB
         //========
         public View()
         {
-            for (int j = 0; j < WindowSize.GetY; j++)
+            Console.SetWindowSize((int)WindowSize.X, (int)WindowSize.Y);
+            Console.SetBufferSize((int)WindowSize.X + 1, (int)WindowSize.Y);//+1: last pixel buffer(буффер для последнего пикселя)
+            Console.CursorVisible = false;
+            Console.Title = "ALB-1.0";
+
+            for (int j = 0; j < WindowSize.Y; j++)
             {
-                for (int i = 0; i < WindowSize.GetX; i++)
+                for (int i = 0; i < WindowSize.X; i++)
                 {
                     WindowArray[i,j] = new List<ObjectSingle>();
                 }
             }
         }
         //========
-        public static void DrawObject(List<Object>[] valueArray, bool[] actionToggle, ObjectSingle parentObject)
+        public static void DrawObject(List<Object>[] valueArray, bool[] actionToggle, ObjectSingle parentObject, ObjectGroup parentGroup)
         {
             //current fixed values(текущие фиксированные значения)
             ConsoleColor col = (ConsoleColor)valueArray[(int)Task.color][valueArray[(int)Task.color].Count - 1];
             float lay = (float)valueArray[(int)Task.layer][valueArray[(int)Task.layer].Count - 1];
             int sx = (int)valueArray[(int)Task.sizeX][valueArray[(int)Task.sizeX].Count - 1];
             int sy = (int)valueArray[(int)Task.sizeY][valueArray[(int)Task.sizeY].Count - 1];
-            int px = (int)valueArray[(int)Task.positionX][valueArray[(int)Task.positionX].Count - 1] + WindowSize.GetX / 2 - sx / 2;
-            int py = (int)valueArray[(int)Task.positionY][valueArray[(int)Task.positionY].Count - 1] + WindowSize.GetY / 2 - sy / 2;
+            int px = (int)valueArray[(int)Task.positionX][valueArray[(int)Task.positionX].Count - 1] + (int)WindowSize.X / 2 - sx / 2;
+            int py = (int)valueArray[(int)Task.positionY][valueArray[(int)Task.positionY].Count - 1] + (int)WindowSize.Y / 2 - sy / 2;
             int sumX;
             int sumY;
             //previous values(предыдущие значения)
             int _sx = (int)valueArray[(int)Task.sizeX][0];
             int _sy = (int)valueArray[(int)Task.sizeY][0];
-            int _px = (int)valueArray[(int)Task.positionX][0] + WindowSize.GetX / 2 - sx / 2;
-            int _py = (int)valueArray[(int)Task.positionY][0] + WindowSize.GetY / 2 - sy / 2;
+            int _px = (int)valueArray[(int)Task.positionX][0] + (int)WindowSize.X / 2 - sx / 2;
+            int _py = (int)valueArray[(int)Task.positionY][0] + (int)WindowSize.Y / 2 - sy / 2;
             int _sumX;
             int _sumY;
             //---
-            if (actionToggle[(int)Draw.group])
+            if (parentGroup != null)
             {
                 if (actionToggle[(int)Draw.destroy])
                 {
@@ -111,7 +116,6 @@ namespace ALB
                             Remove(_sumX, _sumY, sumX, sumY, isPartial);
                         }
                     }
-                    Console.SetCursorPosition(CheckSizeX(_px), CheckSizeY(_py));
                 }
                 else
                 {
@@ -126,7 +130,6 @@ namespace ALB
                             Redraw(sumX, sumY, _sumX, _sumY, isPartial);
                         }
                     }
-                    Console.SetCursorPosition(CheckSizeX(px), CheckSizeY(py));
                 }
                 //Console.BackgroundColor = DefaultColor;
             }
@@ -138,10 +141,12 @@ namespace ALB
             /// <param name="toDestroy">Удалить объект если "true". (Создать - "false", по умолчанию) </param>
             void RedrawGroup(bool isPartial, bool isRemove)
             {
+                //current fixed values(текущие фиксированные значения)
                 int gx = (int)valueArray[(int)Task.gapX][valueArray[(int)Task.gapX].Count - 1] + sx;
                 int gy = (int)valueArray[(int)Task.gapY][valueArray[(int)Task.gapY].Count - 1] + sy;
                 int qx = (int)valueArray[(int)Task.quantX][valueArray[(int)Task.quantX].Count - 1];
                 int qy = (int)valueArray[(int)Task.quantY][valueArray[(int)Task.quantY].Count - 1];
+                //previous values(предыдущие значения)
                 int _gx = (int)valueArray[(int)Task.gapX][0] + sx;
                 int _gy = (int)valueArray[(int)Task.gapY][0] + sy;
                 int _qx = (int)valueArray[(int)Task.quantX][0];
@@ -164,10 +169,8 @@ namespace ALB
                                     Remove(_sumX, _sumY, sumX, sumY, isPartial);
                                 }
                             }
-                            Console.SetCursorPosition(CheckSizeX(_px), CheckSizeY(_py));
                         }
                     }
-                    //Console.BackgroundColor = DefaultColor;
                 }
                 else
                 {
@@ -186,10 +189,8 @@ namespace ALB
                                     Redraw(sumX, sumY, _sumX, _sumY, isPartial);
                                 }
                             }
-                            Console.SetCursorPosition(CheckSizeX(px), CheckSizeY(py));
                         }
                     }
-                    //Console.BackgroundColor = DefaultColor;
                 }
 
             }
@@ -256,26 +257,6 @@ namespace ALB
                 }
             }
             //----
-        }
-        //========
-        void FirstMet()
-        {
-            Console.SetWindowSize(WindowSize.GetX, WindowSize.GetY);
-            Console.SetBufferSize(WindowSize.GetX + 1, WindowSize.GetY);//+1: last pixel buffer(буффер для последнего пикселя)
-            Console.CursorVisible = false;
-            Console.Title = "ALB-1.0";
-        }
-        //----
-        public void Create()
-        {
-            FirstMet();
-            ObjectSingle obj = new ObjectSingle(ObjType.Car, 1);
-            while (true)
-            {
-                Thread.Sleep(500);
-                obj.Position.SetY(obj.Position.GetY - 1);
-                obj.Position.SetX(obj.Position.GetX - 1);
-            }
         }
         //====static====
         public static void StartThread(ThreadStart methodToStart)

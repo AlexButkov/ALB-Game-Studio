@@ -40,7 +40,6 @@ namespace ALB
     enum Draw : int
     { 
         some,
-        group,
         destroy,
         vector,
         layer,

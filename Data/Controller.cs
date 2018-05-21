@@ -11,13 +11,13 @@ namespace ALB
         public Queue<Task> QueueList { get; set; } = new Queue<Task>();
         /// <summary>(объект для поочередного доступа к очереди)</summary>
         public object QueueBlocker { get; set; } = new object();
-        protected ObjectSingle parentObject;
-        protected ObjectGroup parentGroup;
+        protected ObjectSingle ParentObject { get; set; }
+        public ObjectGroup ParentGroup { get; set; }
         /// <summary>(массив переменных для контроллера)</summary>
         protected List<Object>[] valueArray = new List<Object>[(int)Task.max];
         protected bool[] actionToggle = new bool[(int)Draw.max];
         protected Task tempType;
-        protected bool toLaunch;
+        protected bool toDequeue;
         //=========
         public Controller(ObjectSingle parentObject)
         {
@@ -25,7 +25,7 @@ namespace ALB
         }
         public Controller(ObjectGroup parentObject)
         {
-            parentGroup = parentObject;
+            ParentGroup = parentObject;
             Initialize(parentObject);
         }
         //=========
@@ -46,7 +46,7 @@ namespace ALB
             {
                 valueArray[i] = new List<Object>();
             }
-            this.parentObject = parentObject;
+            this.ParentObject = parentObject;
             //SetArrayFull();
             View.StartThread(Monitoring);//Monitoring();
         }
@@ -55,7 +55,7 @@ namespace ALB
         {
             while (true)
             {
-                if (toLaunch && parentObject != null)
+                if (toDequeue && ParentObject != null)
                 {
                     lock (QueueBlocker)
                     {
@@ -71,14 +71,6 @@ namespace ALB
                                     actionToggle[(int)Draw.layer] = true; goto case Task.max;
                                 case Task.color:
                                     actionToggle[(int)Draw.color] = true; goto case Task.max;
-                                case Task.gapX:
-                                    actionToggle[(int)Draw.group] = true; goto default;
-                                case Task.gapY:
-                                    goto case Task.gapX;
-                                case Task.quantX:
-                                    goto case Task.gapX;
-                                case Task.quantY:
-                                    goto case Task.gapX;
                                 case Task.max:
                                     actionToggle[(int)Draw.some] = true; break;
                                 default:
@@ -88,7 +80,7 @@ namespace ALB
                     }
                     if (actionToggle[(int)Draw.some])
                     {
-                        View.DrawObject(valueArray, actionToggle, parentObject);
+                        View.DrawObject(valueArray, actionToggle, ParentObject, ParentGroup);
                         RemoveOldValue();
                     }
                 }
@@ -101,7 +93,7 @@ namespace ALB
             {
                 SetArray((Task)i);
             }
-            toLaunch = true;
+            toDequeue = true;
         }
 
         protected void SetArray(Task varType)
@@ -109,27 +101,27 @@ namespace ALB
             switch (varType)
             {
                 case Task.isDestroyed:
-                    valueArray[(int)Task.isDestroyed].Add(parentObject.IsDestroyed); break;
+                    valueArray[(int)Task.isDestroyed].Add(ParentObject.IsDestroyed); break;
                 case Task.layer:
-                    valueArray[(int)Task.layer].Add(parentObject.Layer); break;
+                    valueArray[(int)Task.layer].Add(ParentObject.Layer); break;
                 case Task.positionX:
-                    valueArray[(int)Task.positionX].Add(parentObject.Position.GetX); break;
+                    valueArray[(int)Task.positionX].Add((int)ParentObject.Position.X); break;
                 case Task.positionY:
-                    valueArray[(int)Task.positionY].Add(parentObject.Position.GetY); break;
+                    valueArray[(int)Task.positionY].Add((int)ParentObject.Position.Y); break;
                 case Task.sizeX:
-                    valueArray[(int)Task.sizeX].Add(parentObject.Size.GetX); break;
+                    valueArray[(int)Task.sizeX].Add((int)ParentObject.Size.X); break;
                 case Task.sizeY:
-                    valueArray[(int)Task.sizeY].Add(parentObject.Size.GetY); break;
+                    valueArray[(int)Task.sizeY].Add((int)ParentObject.Size.Y); break;
                 case Task.color:
-                    valueArray[(int)Task.color].Add(parentObject.Color); break;
+                    valueArray[(int)Task.color].Add(ParentObject.Color); break;
                 case Task.gapX:
-                    valueArray[(int)Task.gapX].Add(parentGroup?.Gap.GetX); break;
+                    valueArray[(int)Task.gapX].Add((int)(ParentGroup?.Gap.X ?? 0)); break;
                 case Task.gapY:
-                    valueArray[(int)Task.gapY].Add(parentGroup?.Gap.GetY); break;
+                    valueArray[(int)Task.gapY].Add((int)(ParentGroup?.Gap.Y ?? 0)); break;
                 case Task.quantX:
-                    valueArray[(int)Task.quantX].Add(parentGroup?.Quant.GetX); break;
+                    valueArray[(int)Task.quantX].Add((int)(ParentGroup?.Quant.X ?? 1)); break;
                 case Task.quantY:
-                    valueArray[(int)Task.quantY].Add(parentGroup?.Quant.GetY); break;
+                    valueArray[(int)Task.quantY].Add((int)(ParentGroup?.Quant.Y ?? 1)); break;
                 case Task.max:
                     goto default;
                 default:
