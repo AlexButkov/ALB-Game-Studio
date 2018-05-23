@@ -10,13 +10,13 @@ namespace ALB
         House,
         Tree
     }
-    enum PosTypeX : int
+    enum SideX : int
     {
         Left=-1,
         Middle,
         Right
     }
-    enum PosTypeY : int
+    enum SideY : int
     {
         Up=-1,
         Middle,

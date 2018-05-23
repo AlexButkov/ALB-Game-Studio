@@ -34,9 +34,9 @@ namespace ALB
         public ObjectGroup(ObjType objectType, int renderLayer = 0, float? positionX = null, float? positionY = null, float? sizeX = null, float? sizeY = null, ConsoleColor? color = null, float? gapX = null, float? gapY = null, float? countX = null, float? countY = null, params ObjectSingle[] childObject)
             :base(objectType, renderLayer, positionX, positionY, sizeX, sizeY, color, childObject)
         {
-            Inspector.ParentGroup = this;
-            Gap = new Vector(null, null, Inspector, Task.gapX, Task.gapY);
-            Quant = new Vector(null, null, Inspector, Task.quantX, Task.quantY);
+            Inspection.ParentGroup = this;
+            Gap = new Vector(null, null, Inspection, Task.gapX, Task.gapY);
+            Quant = new Vector(null, null, Inspection, Task.quantX, Task.quantY);
             switch (objectType)
             {   //характеристики объектов по умолчанию
                 case ObjType.Car:     { Gap.X = gapX ??  05; Gap.Y = gapY ??  05; Quant.X = countX ??  05; Quant.Y = countY ??  05; } break;
@@ -46,7 +46,7 @@ namespace ALB
                 case ObjType.Tree:    { Gap.X = gapX ??  05; Gap.Y = gapY ??  05; Quant.X = countX ??  05; Quant.Y = countY ??  05; } break;
                 default: break;
             }
-            Inspector.SetArrayFull();
+            Inspection.SetArrayFull();
         }
         //========
     }

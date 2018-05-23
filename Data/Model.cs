@@ -13,9 +13,14 @@ namespace ALB
         public static string DefaultSymbol { get; } = " ";
         /// <summary>(размер базовой ячейки координатной сетки)</summary>
         public static Vector GridSize { get; } = new Vector(6, 4);// >=(3,2)
+        /// <summary>(размер базовой ячейки координатной сетки)</summary>
+        public static Vector CurPosition { get; set; } = new Vector(0, 0);
         /// <summary>(масштаб окна консоли относительно экрана)</summary>
         public static float WindowScaler { get; } = 1.0f; // <=1
-        //========
+        /// <summary>(время между кадрами в секундах)</summary>
+        public static float DeltaTime { get; } = 0.015f; 
+        /// <summary>(время между кадрами в миллисекундах)</summary>
+        public static int DeltaTimeMs { get; } = (int)(DeltaTime * 1000); 
         /// <summary>(размер окна консоли)</summary>
         public static Vector WindowSize { get; } = new Vector((int)Math.Abs(Console.LargestWindowWidth * WindowScaler), (int)Math.Abs(Console.LargestWindowHeight * WindowScaler));
         /// <summary>(список объектов на сцене)</summary>
@@ -72,6 +77,16 @@ namespace ALB
             return false;
             else
             return true;
+        }
+
+        /// <summary>
+        /// starting method in another thread (запускает метод в отдельном потоке)
+        /// </summary>
+        /// <param name="methodToStart">method to start (метод для запуска)</param>
+        public static void StartThread(ThreadStart methodToStart)
+        {
+            Thread thread = new Thread(methodToStart);
+            thread.Start();
         }
     }
 }

@@ -206,7 +206,7 @@ namespace ALB
                             lock (DrawBlocker)
                             {
                                 Console.BackgroundColor = col;
-                                Console.SetCursorPosition(CheckSizeX(x), CheckSizeY(y));
+                                Console.SetCursorPosition(x, y);
                                 Console.Write(DefaultSymbol);
                             }
                         }
@@ -250,19 +250,13 @@ namespace ALB
                         lock (DrawBlocker)
                         {
                             Console.BackgroundColor = WindowArray[_x, _y].Count == 0 ? DefaultColor : WindowArray[_x, _y][0].Color;
-                            Console.SetCursorPosition(CheckSizeX(_x), CheckSizeY(_y));
+                            Console.SetCursorPosition(_x, _y);
                             Console.Write(DefaultSymbol);
                         }
                     }
                 }
             }
             //----
-        }
-        //====static====
-        public static void StartThread(ThreadStart methodToStart)
-        {
-            Thread thread = new Thread(methodToStart);
-            thread.Start();
         }
     }
 }

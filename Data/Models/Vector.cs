@@ -31,7 +31,7 @@ namespace ALB
                 }
             }
         }
-        public Controller Inspector { private get; set; } = null;
+        public Inspector Inspector { private get; set; } = null;
         public Task TypeX { private get; set; }
         public Task TypeY { private get; set; }
         //---
@@ -47,7 +47,7 @@ namespace ALB
         /// <param name="inspector">parent controller (родительский контроллер)</param>
         /// <param name="typeX">X-axis Task-enum parameter (Task-enum параметр по оси X)</param>
         /// <param name="typeY">Y-axis Task-enum parameter (Task-enum параметр по оси Y)</param>
-        public Vector(int? x = null, int? y = null, Controller inspector = null, Task? typeX = null, Task? typeY = null)
+        public Vector(int? x = null, int? y = null, Inspector inspector = null, Task? typeX = null, Task? typeY = null)
         {
             TypeX = typeX ?? Task.max;
             TypeY = typeY ?? Task.max;

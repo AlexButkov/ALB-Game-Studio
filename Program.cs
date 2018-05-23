@@ -1,60 +1,42 @@
 ﻿using System;
 using System.Threading;
 using System.Collections;
+using System.Diagnostics;
 
 namespace ALB
 {
-    class Program
+    class Program : Model
     {
         static ObjectSingle obj ;
         static ObjectSingle obh ;
-        static ConsoleKeyInfo keyInfo;
+        static float speed = 1;
         static View view = new View();
-        static int dX = 1;
-        static int dY = 1;
+        static Controller control = new Controller();
         /// <summary> стартовый метод </summary>
         static void Start()
         {
-            obj = new ObjectSingle(ObjType.Car,1,null,null,5.GridToX(), 5.GridToY());
+            obj = new ObjectSingle(ObjType.Car,1,null,null,3.GridToX(), 2.GridToY());
             obh = new ObjectSingle(ObjType.House, 0);
-            obj.Position.X = PosTypeX.Left.PosTypeToX(obj.Size.X);
-            obj.Position.Y = PosTypeY.Up.PosTypeToY(obj.Size.Y);
+            obj.AlignWithSide(SideX.Middle, SideY.Middle);
+            obj.ChildList.Add(obh);
         }
 
         /// <summary> основной цикл </summary>
         static void Update()
         {
-            obj.Position.X += dX;
-            obj.Position.Y += dY;
+            control.MoveByKey(obj, speed);
+            //control.MoveTowards(obh, speed, new Vector(30,30));
         }
         
-        static void GetKey()
-        {
-            while ((keyInfo = Console.ReadKey(true)).Key != ConsoleKey.Escape)
-            {
-                switch (keyInfo.Key)
-                {
-                    case ConsoleKey.UpArrow:
-                        dX = 0; dY = -1; break;
-                    case ConsoleKey.RightArrow:
-                        dX = 1; dY = 0; break;
-                    case ConsoleKey.DownArrow:
-                        dX = 0; dY = 1; break;
-                    case ConsoleKey.LeftArrow:
-                        dX = -1; dY = 0; break;
-                }
-            }
-        }
 
         //================
         static void Main()
         {
             Start();
-            View.StartThread(GetKey);
             while (true)
             {
-                Thread.Sleep(200);
                 Update();
+                Thread.Sleep(DeltaTimeMs);
             }
             //Console.ReadKey();
         }
