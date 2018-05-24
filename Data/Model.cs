@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace ALB
 {
-    class Model
+    class Model 
     {
         /// <summary>(базовый цвет для рендеринга сцены)</summary>
         public const ConsoleColor DefaultColor = ConsoleColor.Black;
@@ -14,7 +14,7 @@ namespace ALB
         /// <summary>(размер базовой ячейки координатной сетки)</summary>
         public static Vector GridSize { get; } = new Vector(6, 4);// >=(3,2)
         /// <summary>(размер базовой ячейки координатной сетки)</summary>
-        public static Vector CurPosition { get; set; } = new Vector(0, 0);
+        public static Vector CurPosition = new Vector(0, 0);
         /// <summary>(масштаб окна консоли относительно экрана)</summary>
         public static float WindowScaler { get; } = 1.0f; // <=1
         /// <summary>(время между кадрами в секундах)</summary>
@@ -24,11 +24,11 @@ namespace ALB
         /// <summary>(размер окна консоли)</summary>
         public static Vector WindowSize { get; } = new Vector((int)Math.Abs(Console.LargestWindowWidth * WindowScaler), (int)Math.Abs(Console.LargestWindowHeight * WindowScaler));
         /// <summary>(список объектов на сцене)</summary>
-        public static List<ObjectGroup> SceneList = new List<ObjectGroup>();
+        public static List<Object> SceneList = new List<Object>();
         /// <summary>(3D копия окна для хранения фонового цвета и № слоев)</summary>
         public static List<ObjectSingle>[,] WindowArray = new List<ObjectSingle>[(int)WindowSize.X, (int)WindowSize.Y];
         /// <summary>(объект для поочередного доступа к консоли)</summary>
-        public static object DrawBlocker { get; set; } = new object();
+        public static object DrawBlocker = new object();
         //========
         public Model() 
         {

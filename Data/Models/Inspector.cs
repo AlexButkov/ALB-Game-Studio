@@ -8,11 +8,11 @@ namespace ALB
     class Inspector : Model
     {
         /// <summary>(очередь событий для инспектора)</summary>
-        public Queue<Task> QueueList { get; set; } = new Queue<Task>();
+        public Queue<Task> QueueList = new Queue<Task>();
         /// <summary>(объект для поочередного доступа к очереди)</summary>
-        public object QueueBlocker { get; set; } = new object();
-        protected ObjectSingle ParentObject { get; set; }
-        public ObjectGroup ParentGroup { get; set; }
+        public object QueueBlocker = new object();
+        protected ObjectSingle ParentObject;
+        public ObjectGroup ParentGroup;
         /// <summary>(массив переменных для инспектора)</summary>
         protected List<Object>[] valueArray = new List<Object>[(int)Task.max];
         protected bool[] actionToggle = new bool[(int)Draw.max];
@@ -46,9 +46,9 @@ namespace ALB
             {
                 valueArray[i] = new List<Object>();
             }
-            this.ParentObject = parentObject;
+            ParentObject = parentObject;
             //SetArrayFull();
-            View.StartThread(Monitoring);//Monitoring();
+            StartThread(Monitoring);
         }
 
         protected void Monitoring()

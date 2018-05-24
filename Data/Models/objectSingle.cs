@@ -10,8 +10,8 @@ namespace ALB
     /// </summary>
     class ObjectSingle : Model
     {
-        public Vector Position { get; set; }
-        public Vector Size { get; set; }
+        public Vector Position;
+        public Vector Size;
         public ConsoleColor Color
         {
             get { return color; }
@@ -48,12 +48,16 @@ namespace ALB
                 isDestroyed = value;
             }
         }
-        public List<ObjectSingle> ChildList { get; set; } = new List<ObjectSingle>();
+        public List<ObjectSingle> ChildList = new List<ObjectSingle>();
         public Inspector Inspection;
+        public bool IsInside;
+        public ObjType ObjectType;
         //----
         protected ConsoleColor color = DefaultColor;
         protected float layer;
         protected bool isDestroyed;
+
+
         //========
         /// <summary>
         /// конструктор экземпляра базового класса для объекта в игре (в первом параметре указывается объект перечисляемого типа "Scene", иначе создается объект с нулевыми значениями)
@@ -85,10 +89,11 @@ namespace ALB
                 case ObjType.Tree:  { Position.X = positionX ?? 00; Position.Y = positionY ?? 00; Size.X = sizeX ?? 08; Size.Y = sizeY ?? 08; Color = color ?? ConsoleColor.Green; } break;
                 default: break;
             }
+            ObjectType = objectType;
             Layer = layer ?? 0;
             for (int i = 0; i < childObject.Length; i++)
                 ChildList.Add(childObject[i]);
-            //SceneList.Add(new Controller((ObjectGroup)this));
+            SceneList.Add(this);
             if (GetType() != typeof(ObjectGroup))
             {
                 Inspection.SetArrayFull();
@@ -96,15 +101,15 @@ namespace ALB
         }
 
         //========
-        
-            /// <summary>
-            /// align object with screen side(выравнивает объект по стороне экрана)
-            /// </summary>
-            /// <param name="SideX">enum-тип SideX</param>
-            /// <param name="SideY">enum-тип SideY</param>
-            public void AlignWithSide(SideX? sideX = null, SideY? sideY = null)
+        /// <summary>
+        /// align object with screen side(выравнивает объект по стороне экрана)
+        /// </summary>
+        /// <param name="SideX">enum-тип SideX</param>
+        /// <param name="SideY">enum-тип SideY</param>
+        public void AlignWithSide(SideX? sideX = null, SideY? sideY = null)
         {
             if (sideX != null)
+            {
                 switch ((int)sideX)
                 {
                     case -1:
@@ -116,8 +121,10 @@ namespace ALB
                     default:
                         goto case 0;
                 }
+            }
 
             if (sideY != null)
+            {
                 switch ((int)sideY)
                 {
                     case -1:
@@ -129,7 +136,79 @@ namespace ALB
                     default:
                         goto case 0;
                 }
+            }
+        }
+        //---
+        
+        public bool TriggerEnter(out List<ObjectSingle> returnList, ObjType? objType = null)
+        {
+            bool current = true;
+            bool previous = false;
+            return Trigger(out returnList, objType, current, previous);
+        }
 
+        public bool TriggerStay(out List<ObjectSingle> returnList, ObjType? objType = null)
+        {
+            bool current = true;
+            bool previous = true;
+            return Trigger(out returnList, objType, current, previous);
+        }
+
+        public bool TriggerExit(out List<ObjectSingle> returnList, ObjType? objType = null)
+        {
+            bool current = false;
+            bool previous = true;
+            return Trigger(out returnList, objType, current, previous);
+        }
+
+        bool Trigger(out List<ObjectSingle> returnList, ObjType? objType, bool current, bool previous)
+        {
+            returnList = new List<ObjectSingle>();
+            foreach (Object obj in SceneList)
+            {
+                ObjectGroup thisGroup = null;
+                ObjectGroup otherGroup = null;
+                bool otherIsGroup = (obj.GetType() != typeof(ObjectGroup)) ? false : true;
+                bool thisIsGroup = (GetType() != typeof(ObjectGroup)) ? false : true;
+
+                if (otherIsGroup)
+                {
+                    otherGroup = (ObjectGroup)obj;
+                }
+                if (thisIsGroup)
+                {
+                    thisGroup = (ObjectGroup)this;
+                }
+
+                var otherObject = otherIsGroup ? (ObjectGroup)obj : (ObjectSingle)obj;
+
+
+                if ((objType == null || otherObject.ObjectType == objType) && !otherObject.IsDestroyed )
+                {
+                    int thisSizeX = thisIsGroup ? (int)Size.X + ((int)Size.X + (int)thisGroup.Gap.X) * ((int)thisGroup.Quant.X - 1) : (int)Size.X;
+                    int thisSizeY = thisIsGroup ? (int)Size.Y + ((int)Size.Y + (int)thisGroup.Gap.Y) * ((int)thisGroup.Quant.Y - 1) : (int)Size.Y;
+                    int otherSizeX = otherIsGroup ? (int)otherObject.Size.X + ((int)otherObject.Size.X + (int)otherGroup.Gap.X) * ((int)otherGroup.Quant.X - 1) : (int)otherObject.Size.X;
+                    int otherSizeY = otherIsGroup ? (int)otherObject.Size.Y + ((int)otherObject.Size.Y + (int)otherGroup.Gap.Y) * ((int)otherGroup.Quant.Y - 1) : (int)otherObject.Size.Y;
+                    int maxX = Math.Max((int)Position.X + thisSizeX / 2, (int)otherObject.Position.X + otherSizeX / 2);
+                    int maxY = Math.Max((int)Position.Y + thisSizeY / 2, (int)otherObject.Position.Y + otherSizeY / 2);
+                    int minX = Math.Min((int)Position.X - thisSizeX / 2, (int)otherObject.Position.X - otherSizeX / 2);
+                    int minY = Math.Min((int)Position.Y - thisSizeY / 2, (int)otherObject.Position.Y - otherSizeY / 2);
+                    int sumX = (int)Size.X + (int)otherObject.Size.X;
+                    int sumY = (int)Size.Y + (int)otherObject.Size.Y;
+
+                    bool currValue = (maxX - minX < sumX && maxY - minY < sumY) ? true : false;
+                    bool prevValue = otherObject.IsInside;
+                    if (currValue == current && prevValue == previous)
+                    {
+                        returnList.Add((ObjectSingle)obj);
+                    }
+                    if (prevValue != currValue)
+                    {
+                        otherObject.IsInside = currValue;
+                    }
+                }
+            }
+            return returnList.Count > 0 ? true : false;
         }
     }
 }

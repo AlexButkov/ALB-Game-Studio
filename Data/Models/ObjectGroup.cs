@@ -7,8 +7,8 @@ namespace ALB
     /// </summary>
     class ObjectGroup : ObjectSingle
     {
-        public Vector Gap { get; set; }
-        public Vector Quant { get; set; }
+        public Vector Gap;
+        public Vector Quant;
 
         //========
         /// <summary>

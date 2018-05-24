@@ -44,12 +44,7 @@ namespace ALB
             {
                 stopTimer = null;
             }
-            if (keyY != 0 || keyX != 0)
-            {
-                double atang = Math.Atan2(keyY, keyX);
-                objectToMove.Position.X += ((float)Math.Cos(atang)).GridToX() * speed * DeltaTime;
-                objectToMove.Position.Y += ((float)Math.Sin(atang)).GridToY() * speed * DeltaTime;
-            }
+            Move(objectToMove, speed, keyX, keyY);
         }
 
         /// <summary> </summary>
@@ -75,7 +70,7 @@ namespace ALB
                 case SideY.Down:
                     kY = 1; break;
             }
-            MoveTowards(objectToMove, speed, new Vector(kX, kY));
+            Move(objectToMove, speed, kX, kY);
         }
 
         /// <summary> </summary>
@@ -83,7 +78,7 @@ namespace ALB
         {
             int kX = (int)targetObject.Position.X - (int)objectToMove.Position.X;
             int kY = (int)targetObject.Position.Y - (int)objectToMove.Position.Y;
-            MoveTowards(objectToMove, speed, new Vector(kX, kY));       
+            Move(objectToMove, speed, kX, kY);       
         }
 
         /// <summary> </summary>
@@ -91,10 +86,15 @@ namespace ALB
         {
             int kX = (int)targetPosition.X - (int)objectToMove.Position.X;
             int kY = (int)targetPosition.Y - (int)objectToMove.Position.Y;
-
-            if (kY != 0 || kX != 0)
+            Move(objectToMove, speed, kX, kY);
+        }
+        //---private---
+        /// <summary> </summary>
+        void Move(ObjectSingle objectToMove, float speed, int targetX, int targetY )
+        {
+            if (targetX != 0 || targetY != 0)
             {
-                double atang = Math.Atan2(kY, kX);
+                double atang = Math.Atan2(targetY, targetX);
                 objectToMove.Position.X += ((float)Math.Cos(atang)).GridToX() * speed * DeltaTime;
                 objectToMove.Position.Y += ((float)Math.Sin(atang)).GridToY() * speed * DeltaTime;
             }
