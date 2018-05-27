@@ -11,10 +11,10 @@ namespace ALB
         public Queue<Task> QueueList = new Queue<Task>();
         /// <summary>(объект для поочередного доступа к очереди)</summary>
         public object QueueBlocker = new object();
-        protected ObjectSingle ParentObject;
-        public ObjectGroup ParentGroup;
+        public ObjectSingle ParentObject { private get; set; }
+        public bool IsParentGroup;
         /// <summary>(массив переменных для инспектора)</summary>
-        protected List<Object>[] valueArray = new List<Object>[(int)Task.max];
+        protected List<dynamic>[] tempArray = new List<dynamic>[(int)Task.max];
         protected bool[] actionToggle = new bool[(int)Draw.max];
         protected Task tempType;
         protected bool toDequeue;
@@ -25,7 +25,7 @@ namespace ALB
         }
         public Inspector(ObjectGroup parentObject)
         {
-            ParentGroup = parentObject;
+            IsParentGroup = true;
             Initialize(parentObject);
         }
         //=========
@@ -42,11 +42,11 @@ namespace ALB
         //=========
         protected void Initialize(ObjectSingle parentObject)
         {
-            for (int i = 0; i < valueArray.Length; i++)
+            for (int i = 0; i < tempArray.Length; i++)
             {
-                valueArray[i] = new List<Object>();
+                tempArray[i] = new List<Object>();
             }
-            ParentObject = parentObject;
+            this.ParentObject = parentObject;
             //SetArrayFull();
             StartThread(Monitoring);
         }
@@ -62,7 +62,19 @@ namespace ALB
                         while (QueueList.Count > 0)
                         {
                             tempType = QueueList.Dequeue();
+                            if (tempType == Task.copyObject && ParentObject.CopyObject != null)
+                            {
+                                for (int i = 0; i < tempArray.Length; i++)
+                                {
+                                    ParentObject.Value((Task)i) = ParentObject.CopyObject.Value((Task)i);
+                                }
+                                SetArrayFull();
+                                actionToggle[(int)Draw.some] = actionToggle[(int)Draw.layer] = actionToggle[(int)Draw.color] = actionToggle[(int)Draw.vector] = true;
+                            }
+                            else
+                            {
                             SetArray(tempType);
+                            }
                             switch (tempType)
                             {
                                 case Task.isDestroyed:
@@ -76,13 +88,13 @@ namespace ALB
                                 case Task.positionX:
                                     foreach (ObjectSingle Child in ParentObject.ChildList)
                                     {
-                                        Child.Position.X += (int)valueArray[(int)Task.positionX][valueArray[(int)Task.positionX].Count - 1] - (int)valueArray[(int)Task.positionX][0];
+                                        Child.Position.X += (int)tempArray[(int)Task.positionX][tempArray[(int)Task.positionX].Count - 1] - (int)tempArray[(int)Task.positionX][0];
                                     }
                                     goto default;
                                case Task.positionY:
                                     foreach (ObjectSingle Child in ParentObject.ChildList)
                                     {
-                                        Child.Position.Y += (int)valueArray[(int)Task.positionY][valueArray[(int)Task.positionY].Count - 1] - (int)valueArray[(int)Task.positionY][0];
+                                        Child.Position.Y += (int)tempArray[(int)Task.positionY][tempArray[(int)Task.positionY].Count - 1] - (int)tempArray[(int)Task.positionY][0];
                                     }
                                     goto default;
                                 default:
@@ -92,7 +104,7 @@ namespace ALB
                     }
                     if (actionToggle[(int)Draw.some])
                     {
-                        View.DrawObject(valueArray, actionToggle, ParentObject, ParentGroup);
+                        View.DrawObject(tempArray, actionToggle, ParentObject, IsParentGroup);
                         RemoveOldValue();
                     }
                 }
@@ -102,7 +114,7 @@ namespace ALB
 
         public void SetArrayFull()
         {
-            for (int i = 0; i < valueArray.Length; i++)
+            for (int i = 0; i < tempArray.Length; i++)
             {
                 SetArray((Task)i);
             }
@@ -111,43 +123,15 @@ namespace ALB
 
         protected void SetArray(Task varType)
         {
-            switch (varType)
-            {
-                case Task.isDestroyed:
-                    valueArray[(int)Task.isDestroyed].Add(ParentObject.IsDestroyed); break;
-                case Task.layer:
-                    valueArray[(int)Task.layer].Add(ParentObject.Layer); break;
-                case Task.positionX:
-                    valueArray[(int)Task.positionX].Add((int)ParentObject.Position.X); break;
-                case Task.positionY:
-                    valueArray[(int)Task.positionY].Add((int)ParentObject.Position.Y); break;
-                case Task.sizeX:
-                    valueArray[(int)Task.sizeX].Add((int)ParentObject.Size.X); break;
-                case Task.sizeY:
-                    valueArray[(int)Task.sizeY].Add((int)ParentObject.Size.Y); break;
-                case Task.color:
-                    valueArray[(int)Task.color].Add(ParentObject.Color); break;
-                case Task.gapX:
-                    valueArray[(int)Task.gapX].Add((int)(ParentGroup?.Gap.X ?? 0)); break;
-                case Task.gapY:
-                    valueArray[(int)Task.gapY].Add((int)(ParentGroup?.Gap.Y ?? 0)); break;
-                case Task.quantX:
-                    valueArray[(int)Task.quantX].Add((int)(ParentGroup?.Quant.X ?? 1)); break;
-                case Task.quantY:
-                    valueArray[(int)Task.quantY].Add((int)(ParentGroup?.Quant.Y ?? 1)); break;
-                case Task.max:
-                    goto default;
-                default:
-                    break;
-            }
+            tempArray[(int)varType].Add(ParentObject.Value(varType));
         }
         protected void RemoveOldValue()
         {
-            for (int i = 0; i < valueArray.Length; i++)
+            for (int i = 0; i < tempArray.Length; i++)
             {
-                while (valueArray[i].Count > 1)
+                while (tempArray[i].Count > 1)
                 {
-                    valueArray[i].RemoveAt(0);
+                    tempArray[i].RemoveAt(0);
                 }
             }
         }

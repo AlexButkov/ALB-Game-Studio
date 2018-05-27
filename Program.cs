@@ -11,23 +11,26 @@ namespace ALB
         static ObjectSingle car ;
         static List<ObjectSingle> other ;
         static ObjectSingle house ;
-        static float speed = 5;
+        static float speed = 5f;
         static View view = new View();
-        static Controller control = new Controller();
         /// <summary> стартовый метод </summary>
         static void Start()
         {
             car = new ObjectSingle(ObjType.Car,1,null,null,3.GridToX(), 2.GridToY());
-            house = new ObjectSingle(ObjType.House, 0);
-            car.AlignWithSide(SideX.Middle, SideY.Middle);
-            //car.ChildList.Add(house);
+            house = new ObjectSingle(ObjType.House,0,0);
+            car.AlignWithSide(SideX.Left, SideY.Middle);
+            //house.AlignWithSide(SideX.Left, SideY.Up);
+            car.ChildList.Add(house);
+            Thread.Sleep(3000);
+            car.CopyFrom(house);
+            //car.Color = ConsoleColor.Cyan;
         }
 
         /// <summary> основной цикл </summary>
         static void Update()
         {
-            control.MoveAside(car, speed, SideX.Left );
-            //control.MoveByKey(car, speed);
+            house.MoveAside(1, SideX.Left );
+            car.MoveByKey(speed);
 
             if (house.TriggerExit(out other, ObjType.Car))
             {

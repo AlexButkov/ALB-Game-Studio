@@ -24,7 +24,7 @@ namespace ALB
             }
         }
         //========
-        public static void DrawObject(List<Object>[] valueArray, bool[] actionToggle, ObjectSingle parentObject, ObjectGroup parentGroup)
+        public static void DrawObject(List<dynamic>[] valueArray, bool[] actionToggle, ObjectSingle parentObject, bool isParentGroup)
         {
             //current fixed values(текущие фиксированные значения)
             ConsoleColor col = (ConsoleColor)valueArray[(int)Task.color][valueArray[(int)Task.color].Count - 1];
@@ -38,12 +38,12 @@ namespace ALB
             //previous values(предыдущие значения)
             int _sx = (int)valueArray[(int)Task.sizeX][0];
             int _sy = (int)valueArray[(int)Task.sizeY][0];
-            int _px = (int)valueArray[(int)Task.positionX][0] + (int)WindowSize.X / 2 - sx / 2;
-            int _py = (int)valueArray[(int)Task.positionY][0] + (int)WindowSize.Y / 2 - sy / 2;
+            int _px = (int)valueArray[(int)Task.positionX][0] + (int)WindowSize.X / 2 - _sx / 2;
+            int _py = (int)valueArray[(int)Task.positionY][0] + (int)WindowSize.Y / 2 - _sy / 2;
             int _sumX;
             int _sumY;
             //---
-            if (parentGroup != null)
+            if (isParentGroup)
             {
                 if (actionToggle[(int)Draw.destroy])
                 {
@@ -146,11 +146,17 @@ namespace ALB
                 int gy = (int)valueArray[(int)Task.gapY][valueArray[(int)Task.gapY].Count - 1] + sy;
                 int qx = (int)valueArray[(int)Task.quantX][valueArray[(int)Task.quantX].Count - 1];
                 int qy = (int)valueArray[(int)Task.quantY][valueArray[(int)Task.quantY].Count - 1];
+                px = (int)valueArray[(int)Task.positionX][valueArray[(int)Task.positionX].Count - 1] + (int)WindowSize.X / 2 - (sx + gx * (qx - 1)) / 2;
+                py = (int)valueArray[(int)Task.positionY][valueArray[(int)Task.positionY].Count - 1] + (int)WindowSize.Y / 2 - (sy + gy * (qy - 1)) / 2;
                 //previous values(предыдущие значения)
-                int _gx = (int)valueArray[(int)Task.gapX][0] + sx;
-                int _gy = (int)valueArray[(int)Task.gapY][0] + sy;
+                int _gx = (int)valueArray[(int)Task.gapX][0] + _sx;
+                int _gy = (int)valueArray[(int)Task.gapY][0] + _sy;
                 int _qx = (int)valueArray[(int)Task.quantX][0];
                 int _qy = (int)valueArray[(int)Task.quantY][0];
+                int _hx = (_sx + _gx * (_qx - 1)) / 2;
+                int _hy = (_sy + _gy * (_qy - 1)) / 2;
+                _px = (int)valueArray[(int)Task.positionX][0] + (int)WindowSize.X / 2 - _hx;
+                _py = (int)valueArray[(int)Task.positionY][0] + (int)WindowSize.Y / 2 - _hy;
 
                 if (isRemove)
                 {
@@ -201,37 +207,37 @@ namespace ALB
                 {
                     if (!isPartial || !((x >= _x && x < _x + _sx) && (y >= _y && y < _y + _sy)))
                     {
-                        if (WindowArray[x, y].Count == 0 || lay >= WindowArray[x, y][0].Layer)
+                        lock (DrawBlocker)
                         {
-                            lock (DrawBlocker)
+                            if (WindowArray[x, y].Count == 0 || lay >= WindowArray[x, y][0].Layer)
                             {
-                                Console.BackgroundColor = col;
-                                Console.SetCursorPosition(x, y);
-                                Console.Write(DefaultSymbol);
+                                    Console.BackgroundColor = col;
+                                    Console.SetCursorPosition(x, y);
+                                    Console.Write(DefaultSymbol);
                             }
-                        }
-                        if (actionToggle[(int)Draw.layer])
-                        {
-                            WindowArray[x, y].Remove(parentObject);
-                        }
-                        if (!WindowArray[x, y].Contains(parentObject))
-                        {
-                            if (WindowArray[x, y].Count == 0)
+                            if (actionToggle[(int)Draw.layer])
                             {
-                                WindowArray[x, y].Add(parentObject);
+                                WindowArray[x, y].RemoveAll(obj => obj.Equals(parentObject));
                             }
-                            else
+                            if (!WindowArray[x, y].Contains(parentObject))
                             {
-                                for (int n = 0; n < WindowArray[x, y].Count; n++)
+                                if (WindowArray[x, y].Count == 0)
                                 {
-                                    if (lay >= WindowArray[x, y][n].Layer)
+                                    WindowArray[x, y].Add(parentObject);
+                                }
+                                else
+                                {
+                                    for (int n = 0; n < WindowArray[x, y].Count; n++)
                                     {
-                                        WindowArray[x, y].Insert(n, parentObject);
-                                        break;
-                                    }
-                                    else if (n == WindowArray[x, y].Count - 1)
-                                    {
-                                        WindowArray[x, y].Add(parentObject);
+                                        if (lay >= WindowArray[x, y][n].Layer)
+                                        {
+                                            WindowArray[x, y].Insert(n, parentObject);
+                                            break;
+                                        }
+                                        else if (n == WindowArray[x, y].Count - 1)
+                                        {
+                                            WindowArray[x, y].Add(parentObject);
+                                        }
                                     }
                                 }
                             }
@@ -246,9 +252,10 @@ namespace ALB
                 {
                     if (!isPartial || !((_x >= x && _x < x + sx) && (_y >= y && _y < y + sy)))
                     {
-                        WindowArray[_x, _y].Remove(parentObject);
                         lock (DrawBlocker)
                         {
+                            WindowArray[_x, _y].RemoveAll(obj => obj.Equals(parentObject));
+
                             Console.BackgroundColor = WindowArray[_x, _y].Count == 0 ? DefaultColor : WindowArray[_x, _y][0].Color;
                             Console.SetCursorPosition(_x, _y);
                             Console.Write(DefaultSymbol);

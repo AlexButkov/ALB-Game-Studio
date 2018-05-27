@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace ALB
 {
@@ -29,6 +30,9 @@ namespace ALB
         public static List<ObjectSingle>[,] WindowArray = new List<ObjectSingle>[(int)WindowSize.X, (int)WindowSize.Y];
         /// <summary>(объект для поочередного доступа к консоли)</summary>
         public static object DrawBlocker = new object();
+
+        
+
         //========
         public Model() 
         {

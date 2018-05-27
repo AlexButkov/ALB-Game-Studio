@@ -6,29 +6,30 @@ using System.Diagnostics;
 
 namespace ALB
 {
-    class Controller : Model
+    static class Controller
     {
-        protected Stopwatch keyTimer = new Stopwatch();
-        protected ConsoleKey? keyFirst;
-        protected ConsoleKey? keySecond;
-        protected bool isFirst;
-        protected bool getKeyIsOn;
-        protected bool resetKeyIsOn;
-        protected int deltaTimer = 100;
-        protected int? stopTimer = 100;
-        protected int keyX;
-        protected int keyY;
-        /// <summary> </summary>
-        public Controller()
+        static Stopwatch keyTimer = new Stopwatch();
+        static ConsoleKey? keyFirst;
+        static ConsoleKey? keySecond;
+        static bool isFirst;
+        static bool getKeyIsOn;
+        static bool resetKeyIsOn;
+        static int deltaTimer = 100;
+        static int? stopTimer = 100;
+        static int keyX;
+        static int keyY;
+        //======
+        /*/// <summary> </summary>
+        public static void MoveByKey(this ObjectGroup objectToMove, float speed, float? stopDistance = null)
         {
-        }
-
+            objectToMove.MoveByKey(speed, stopDistance);
+        }*/
         /// <summary> </summary>
-        public void MoveByKey(ObjectSingle objectToMove, float speed, float? stopDistance = null )
+        public static void MoveByKey(this ObjectSingle objectToMove, float speed, float? stopDistance = null )
         {
             if (!getKeyIsOn)
             {
-                StartThread(GetKey);
+                Model.StartThread(GetKey);
                 getKeyIsOn = true;
             }
             if (stopDistance != null)
@@ -36,7 +37,7 @@ namespace ALB
                 stopTimer = (int)(stopDistance / speed * 1000);
                 if (!resetKeyIsOn)
                 {
-                    StartThread(ResetKey);
+                    Model.StartThread(ResetKey);
                     resetKeyIsOn = true;
                 }
             }
@@ -48,7 +49,7 @@ namespace ALB
         }
 
         /// <summary> </summary>
-        public void MoveAside(ObjectSingle objectToMove, float speed, SideX typeX = SideX.Middle, SideY typeY = SideY.Middle)
+        public static void MoveAside(this ObjectSingle objectToMove, float speed, SideX typeX = SideX.Middle, SideY typeY = SideY.Middle)
         {
             int kX = 0;
             int kY = 0;
@@ -74,7 +75,7 @@ namespace ALB
         }
 
         /// <summary> </summary>
-        public void MoveTowards(ObjectSingle objectToMove, float speed, ObjectSingle targetObject)
+        public static void MoveTowards(this ObjectSingle objectToMove, float speed, ObjectSingle targetObject)
         {
             int kX = (int)targetObject.Position.X - (int)objectToMove.Position.X;
             int kY = (int)targetObject.Position.Y - (int)objectToMove.Position.Y;
@@ -82,7 +83,7 @@ namespace ALB
         }
 
         /// <summary> </summary>
-        public void MoveTowards(ObjectSingle objectToMove, float speed, Vector targetPosition)
+        public static void MoveTowards(this ObjectSingle objectToMove, float speed, Vector targetPosition)
         {
             int kX = (int)targetPosition.X - (int)objectToMove.Position.X;
             int kY = (int)targetPosition.Y - (int)objectToMove.Position.Y;
@@ -90,18 +91,18 @@ namespace ALB
         }
         //---private---
         /// <summary> </summary>
-        void Move(ObjectSingle objectToMove, float speed, int targetX, int targetY )
+        static void Move(ObjectSingle objectToMove, float speed, int targetX, int targetY )
         {
             if (targetX != 0 || targetY != 0)
             {
                 double atang = Math.Atan2(targetY, targetX);
-                objectToMove.Position.X += ((float)Math.Cos(atang)).GridToX() * speed * DeltaTime;
-                objectToMove.Position.Y += ((float)Math.Sin(atang)).GridToY() * speed * DeltaTime;
+                objectToMove.Position.X += ((float)Math.Cos(atang)).GridToX() * speed * Model.DeltaTime;
+                objectToMove.Position.Y += ((float)Math.Sin(atang)).GridToY() * speed * Model.DeltaTime;
             }
         }
 
         //------
-        void ResetKey()
+        static void ResetKey()
         {
             while (true)
             {
@@ -110,11 +111,11 @@ namespace ALB
                     keyX = 0;
                     keyY = 0;
                 }
-                Thread.Sleep(DeltaTimeMs);
+                Thread.Sleep(Model.DeltaTimeMs);
             }
         }
 
-        void GetKey()
+        static void GetKey()
         {
             while (true)
             {

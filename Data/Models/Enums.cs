@@ -35,6 +35,7 @@ namespace ALB
         gapY,
         quantX,
         quantY,
+        copyObject,
         max //max value variable (переменная с максимальным значением)
     }
     enum Draw : int

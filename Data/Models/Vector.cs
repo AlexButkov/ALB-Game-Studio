@@ -7,31 +7,74 @@ namespace ALB
     {
         public float X
         {
-            get { return x; }
+            get
+            {
+                if (ParentObject != null)
+                {
+                    return ParentObject.Value(TypeX) ?? default(float);
+                }
+                else
+                {
+                    return x;
+                }
+            }
             set
             {
-                x = value;
-                if (prevX != (int)x && Inspector != null)
+                if (ParentObject != null)
                 {
-                    Inspector.AddTask(TypeX);
-                    prevX = (int)x;
+                    if (ParentObject.Value(TypeX) != value)
+                    {
+                        ref var temp = ref ParentObject.Value(TypeX);
+                        prevX = temp as int?;
+                        temp = value;
+                        if (prevX != (int)value)
+                        {
+                            ParentObject.Inspection?.AddTask(TypeX);
+                        }
+                    }
+                }
+                else
+                {
+                    x = value;
                 }
             }
         }
+
         public float Y
         {
-            get { return y; }
+            get
+            {
+                if (ParentObject != null)
+                {
+                    return ParentObject.Value(TypeY) ?? default(float);
+                }
+                else
+                {
+                    return y;
+                }
+            }
             set
             {
-                y = value;
-                if (prevY != (int)y && Inspector != null)
+                if (ParentObject != null)
                 {
-                    Inspector.AddTask(TypeY);
-                    prevY = (int)y;
+                    if (ParentObject.Value(TypeY) != value)
+                    {
+                        ref var temp = ref ParentObject.Value(TypeY);
+                        prevX = temp as int?;
+                        temp = value;
+                        if (prevY != (int)value)
+                        {
+                            ParentObject.Inspection?.AddTask(TypeY);
+                        }
+                    }
+                }
+                else
+                {
+                    y = value;
                 }
             }
         }
-        public Inspector Inspector { private get; set; } = null;
+        public ObjectSingle ParentObject { private get; set; } = null;
         public Task TypeX { private get; set; }
         public Task TypeY { private get; set; }
         //---
@@ -47,11 +90,11 @@ namespace ALB
         /// <param name="inspector">parent controller (родительский контроллер)</param>
         /// <param name="typeX">X-axis Task-enum parameter (Task-enum параметр по оси X)</param>
         /// <param name="typeY">Y-axis Task-enum parameter (Task-enum параметр по оси Y)</param>
-        public Vector(int? x = null, int? y = null, Inspector inspector = null, Task? typeX = null, Task? typeY = null)
+        public Vector(int? x = null, int? y = null, ObjectSingle parentObject = null, Task? typeX = null, Task? typeY = null)
         {
             TypeX = typeX ?? Task.max;
             TypeY = typeY ?? Task.max;
-            Inspector = inspector;
+            ParentObject = parentObject;
             this.x = x ?? 0;
             this.y = y ?? 0;
         }

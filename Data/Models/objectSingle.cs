@@ -12,50 +12,73 @@ namespace ALB
     {
         public Vector Position;
         public Vector Size;
-        public ConsoleColor Color
+        public bool IsDestroyed
         {
-            get { return color; }
+            get { return Value(Task.isDestroyed) ?? default(bool); }
             set
             {
-                if (color != value && Inspection != null)
+                ref var temp = ref Value(Task.isDestroyed);
+                if (temp != value)
                 {
-                    Inspection.AddTask(Task.color);
+                    temp = value;
+                    if (value)
+                    {
+                        Inspection?.AddTask(Task.isDestroyed);
+                    }
+                    else
+                    {
+                        Inspection?.AddTask(Task.color);
+                    }
                 }
-                color = value;
             }
         }
         public float Layer
         {
-            get { return layer; }
+            get { return Value(Task.layer) ?? default(float); }
             set
             {
-                if (layer != value && Inspection != null)
+                ref var temp = ref Value(Task.layer);
+                if (temp != value)
                 {
-                    Inspection.AddTask(Task.layer);
+                    temp = value;
+                    Inspection?.AddTask(Task.layer);
                 }
-                layer = value;
             }
         }
-        public bool IsDestroyed
+        public ConsoleColor Color
         {
-            get { return isDestroyed; }
+            get { return Value(Task.color) ?? default(ConsoleColor); }
             set
             {
-                if (isDestroyed != value && Inspection != null)
+                ref var temp = ref Value(Task.color);
+                if (temp != value)
                 {
-                    Inspection.AddTask(Task.isDestroyed);
+                    temp = value;
+                    Inspection?.AddTask(Task.color);
                 }
-                isDestroyed = value;
+            }
+        }
+        /// <summary>(Для указания значения используется метод CopyFrom())</summary>
+        public ObjectSingle CopyObject
+        {
+            get { return Value(Task.copyObject) ?? default(ObjectSingle); }
+            set
+            {
+                ref var temp = ref Value(Task.copyObject);
+                if (temp != value)
+                {
+                    temp = value;
+                    Inspection?.AddTask(Task.copyObject);
+                }
             }
         }
         public List<ObjectSingle> ChildList = new List<ObjectSingle>();
         public Inspector Inspection;
         public bool IsInside;
         public ObjType ObjectType;
-        //----
-        protected ConsoleColor color = DefaultColor;
-        protected float layer;
-        protected bool isDestroyed;
+        //---
+        /// <summary>(массив значений переменных, влияющих на отображение объекта)</summary>
+        protected dynamic[] values;
 
 
         //========
@@ -77,9 +100,10 @@ namespace ALB
         /// <param name="childObject">список объектов, позиции которых будут связаны с текущим объектом</param>
         public ObjectSingle(ObjType objectType, float? layer = null, float? positionX = null, float? positionY = null, float? sizeX = null, float? sizeY = null, ConsoleColor? color = null, params ObjectSingle[] childObject)
         {
+            values = new Object[(int)Task.max];
             Inspection = new Inspector(this);
-            Position = new Vector(null, null, Inspection, Task.positionX, Task.positionY);
-            Size = new Vector(null, null, Inspection, Task.sizeX, Task.sizeY);
+            Position = new Vector(null, null, this, Task.positionX, Task.positionY);
+            Size = new Vector(null, null, this, Task.sizeX, Task.sizeY);
             switch (objectType)
             {   //характеристики объектов по умолчанию
                 case ObjType.Car:   { Position.X = positionX ?? 00; Position.Y = positionY ?? 00; Size.X = sizeX ?? 12; Size.Y = sizeY ?? 08; Color = color ?? ConsoleColor.Blue; } break;
@@ -90,17 +114,36 @@ namespace ALB
                 default: break;
             }
             ObjectType = objectType;
-            Layer = layer ?? 0;
+            Layer = layer ?? default(float);
             for (int i = 0; i < childObject.Length; i++)
+            {
                 ChildList.Add(childObject[i]);
+            }
             SceneList.Add(this);
             if (GetType() != typeof(ObjectGroup))
             {
                 Inspection.SetArrayFull();
             }
         }
-
         //========
+        public ref dynamic Value(Task task)
+        {
+            return ref values[(int)task];
+        }
+        
+        //---
+        public void CopyFrom(ObjectSingle copyObject)
+        {
+            CopyObject = copyObject;
+        }
+
+        public virtual ObjectSingle CopyThis()
+        {
+            ObjectSingle newObject = new ObjectSingle(ObjectType);
+            newObject.CopyFrom(this);
+            return newObject;
+        }
+
         /// <summary>
         /// align object with screen side(выравнивает объект по стороне экрана)
         /// </summary>
@@ -183,7 +226,7 @@ namespace ALB
                 var otherObject = otherIsGroup ? (ObjectGroup)obj : (ObjectSingle)obj;
 
 
-                if ((objType == null || otherObject.ObjectType == objType) && !otherObject.IsDestroyed )
+                if ((objType == null || otherObject.ObjectType == objType) && !otherObject.IsDestroyed)
                 {
                     int thisSizeX = thisIsGroup ? (int)Size.X + ((int)Size.X + (int)thisGroup.Gap.X) * ((int)thisGroup.Quant.X - 1) : (int)Size.X;
                     int thisSizeY = thisIsGroup ? (int)Size.Y + ((int)Size.Y + (int)thisGroup.Gap.Y) * ((int)thisGroup.Quant.Y - 1) : (int)Size.Y;
@@ -193,8 +236,8 @@ namespace ALB
                     int maxY = Math.Max((int)Position.Y + thisSizeY / 2, (int)otherObject.Position.Y + otherSizeY / 2);
                     int minX = Math.Min((int)Position.X - thisSizeX / 2, (int)otherObject.Position.X - otherSizeX / 2);
                     int minY = Math.Min((int)Position.Y - thisSizeY / 2, (int)otherObject.Position.Y - otherSizeY / 2);
-                    int sumX = (int)Size.X + (int)otherObject.Size.X;
-                    int sumY = (int)Size.Y + (int)otherObject.Size.Y;
+                    int sumX = thisSizeX + otherSizeX;
+                    int sumY = thisSizeY + otherSizeY;
 
                     bool currValue = (maxX - minX < sumX && maxY - minY < sumY) ? true : false;
                     bool prevValue = otherObject.IsInside;
