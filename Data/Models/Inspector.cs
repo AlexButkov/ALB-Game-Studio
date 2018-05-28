@@ -9,6 +9,7 @@ namespace ALB
     {
         /// <summary>(очередь событий для инспектора)</summary>
         public Queue<Task> QueueList = new Queue<Task>();
+        View view = new View();
         /// <summary>(объект для поочередного доступа к очереди)</summary>
         public object QueueBlocker = new object();
         public ObjectSingle ParentObject { private get; set; }
@@ -104,7 +105,7 @@ namespace ALB
                     }
                     if (actionToggle[(int)Draw.some])
                     {
-                        View.DrawObject(tempArray, actionToggle, ParentObject, IsParentGroup);
+                        view.DrawObject(tempArray, actionToggle, ParentObject, IsParentGroup);
                         RemoveOldValue();
                     }
                 }

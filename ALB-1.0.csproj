@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Data\Controller.cs" />
+    <Compile Include="Data\Models\BoxBuilder.cs" />
     <Compile Include="Data\Models\Extensions.cs" />
     <Compile Include="Data\Models\Vector.cs" />
     <Compile Include="Data\Models\Enums.cs" />

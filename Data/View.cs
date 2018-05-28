@@ -10,6 +10,10 @@ namespace ALB
         //========
         public View()
         {
+        }
+        //========
+        public void Initializer()
+        {
             Console.SetWindowSize((int)WindowSize.X, (int)WindowSize.Y);
             Console.SetBufferSize((int)WindowSize.X + 1, (int)WindowSize.Y);//+1: last pixel buffer(буффер для последнего пикселя)
             Console.CursorVisible = false;
@@ -24,11 +28,15 @@ namespace ALB
             }
         }
         //========
-        public static void DrawObject(List<dynamic>[] valueArray, bool[] actionToggle, ObjectSingle parentObject, bool isParentGroup)
+        public void DrawObject(List<dynamic>[] valueArray, bool[] actionToggle, ObjectSingle parentObject, bool isParentGroup)
         {
-            //current fixed values(текущие фиксированные значения)
+            BoxBuilder builder = new BoxBuilder();
+            List<int[]> boxes;
+            bool isLast;
+            ConsoleColor locol;
             ConsoleColor col = (ConsoleColor)valueArray[(int)Task.color][valueArray[(int)Task.color].Count - 1];
             float lay = (float)valueArray[(int)Task.layer][valueArray[(int)Task.layer].Count - 1];
+            //current fixed values(текущие фиксированные значения)
             int sx = (int)valueArray[(int)Task.sizeX][valueArray[(int)Task.sizeX].Count - 1];
             int sy = (int)valueArray[(int)Task.sizeY][valueArray[(int)Task.sizeY].Count - 1];
             int px = (int)valueArray[(int)Task.positionX][valueArray[(int)Task.positionX].Count - 1] + (int)WindowSize.X / 2 - sx / 2;
@@ -109,11 +117,12 @@ namespace ALB
                     {
                         for (int i = 0; i < _sx; i++)
                         {
+                            isLast = (j + 1 == _sy  && i + 1 == _sx ) ? true : false;
                             _sumX = _px + i;
                             _sumY = _py + j;
                             sumX = px;
                             sumY = py;
-                            Remove(_sumX, _sumY, sumX, sumY, isPartial);
+                            Remove(_sumX, _sumY, sumX, sumY, isPartial, isLast);
                         }
                     }
                 }
@@ -123,11 +132,12 @@ namespace ALB
                     {
                         for (int i = 0; i < sx; i++)
                         {
+                            isLast = (j + 1 == sy && i + 1 == sx) ? true : false;
                             sumX = px + i;
                             sumY = py + j;
                             _sumX = _px;
                             _sumY = _py;
-                            Redraw(sumX, sumY, _sumX, _sumY, isPartial);
+                            Redraw(sumX, sumY, _sumX, _sumY, isPartial, isLast);
                         }
                     }
                 }
@@ -146,8 +156,10 @@ namespace ALB
                 int gy = (int)valueArray[(int)Task.gapY][valueArray[(int)Task.gapY].Count - 1] + sy;
                 int qx = (int)valueArray[(int)Task.quantX][valueArray[(int)Task.quantX].Count - 1];
                 int qy = (int)valueArray[(int)Task.quantY][valueArray[(int)Task.quantY].Count - 1];
-                px = (int)valueArray[(int)Task.positionX][valueArray[(int)Task.positionX].Count - 1] + (int)WindowSize.X / 2 - (sx + gx * (qx - 1)) / 2;
-                py = (int)valueArray[(int)Task.positionY][valueArray[(int)Task.positionY].Count - 1] + (int)WindowSize.Y / 2 - (sy + gy * (qy - 1)) / 2;
+                int hx = (sx + gx * (qx - 1)) / 2;
+                int hy = (sy + gy * (qy - 1)) / 2;
+                px = (int)valueArray[(int)Task.positionX][valueArray[(int)Task.positionX].Count - 1] + (int)WindowSize.X / 2 - hx;
+                py = (int)valueArray[(int)Task.positionY][valueArray[(int)Task.positionY].Count - 1] + (int)WindowSize.Y / 2 - hy;
                 //previous values(предыдущие значения)
                 int _gx = (int)valueArray[(int)Task.gapX][0] + _sx;
                 int _gy = (int)valueArray[(int)Task.gapY][0] + _sy;
@@ -168,11 +180,12 @@ namespace ALB
                             {
                                 for (int i = 0; i < _sx; i++)
                                 {
+                                    isLast = (l + 1 == _qy && k + 1 == _qx && j + 1 == _sy && i + 1 == _sx) ? true : false;
                                     _sumX = _px + i + _gx * k;
                                     _sumY = _py + j + _gy * l;
                                     sumX = px + gx * k;
                                     sumY = py + gy * l;
-                                    Remove(_sumX, _sumY, sumX, sumY, isPartial);
+                                    Remove(_sumX, _sumY, sumX, sumY, isPartial, isLast);
                                 }
                             }
                         }
@@ -188,11 +201,12 @@ namespace ALB
                             {
                                 for (int i = 0; i < sx; i++)
                                 {
+                                    isLast = (l + 1 == qy && k + 1 == qx && j + 1 == sy && i + 1 == sx) ? true : false;
                                     sumX = px + i + gx * k;
                                     sumY = py + j + gy * l;
                                     _sumX = _px + _gx * k;
                                     _sumY = _py + _gy * l;
-                                    Redraw(sumX, sumY, _sumX, _sumY, isPartial);
+                                    Redraw(sumX, sumY, _sumX, _sumY, isPartial, isLast);
                                 }
                             }
                         }
@@ -201,19 +215,17 @@ namespace ALB
 
             }
             //----
-            void Redraw(int x, int y, int _x, int _y, bool isPartial)
+            void Redraw(int x, int y, int _x, int _y, bool isPartial, bool isItLast)
             {
                 if (CheckPrint(x, y))
                 {
                     if (!isPartial || !((x >= _x && x < _x + _sx) && (y >= _y && y < _y + _sy)))
                     {
-                        lock (DrawBlocker)
+                        lock (ArrayBlocker)
                         {
                             if (WindowArray[x, y].Count == 0 || lay >= WindowArray[x, y][0].Layer)
                             {
-                                    Console.BackgroundColor = col;
-                                    Console.SetCursorPosition(x, y);
-                                    Console.Write(DefaultSymbol);
+                                DrawBox(col, x, y);
                             }
                             if (actionToggle[(int)Draw.layer])
                             {
@@ -244,26 +256,84 @@ namespace ALB
                         }
                     }
                 }
+                if (isItLast)
+                {
+                    DrawBoxLast();
+                }
             }
             //----
-            void Remove(int _x, int _y, int x, int y, bool isPartial)
+            void Remove(int _x, int _y, int x, int y, bool isPartial, bool isItLast)
             {
                 if (CheckPrint(_x, _y))
                 {
                     if (!isPartial || !((_x >= x && _x < x + sx) && (_y >= y && _y < y + sy)))
                     {
-                        lock (DrawBlocker)
+                        lock (ArrayBlocker)
                         {
                             WindowArray[_x, _y].RemoveAll(obj => obj.Equals(parentObject));
+                            locol = WindowArray[_x, _y].Count == 0 ? DefaultColor : WindowArray[_x, _y][0].Color;
+                            DrawBox(locol, _x, _y);
+                        }
+                    }
+                }
+                if (isItLast)
+                {
+                    DrawBoxLast();
+                }
 
-                            Console.BackgroundColor = WindowArray[_x, _y].Count == 0 ? DefaultColor : WindowArray[_x, _y][0].Color;
-                            Console.SetCursorPosition(_x, _y);
-                            Console.Write(DefaultSymbol);
+            }
+            //----
+            /// <summary>
+            /// draws box at last point (отрисовывает квадратный элемент в последней точке) 
+            /// </summary>
+            void DrawBoxLast()
+            {
+                boxes = builder.LastPixel();
+                if (boxes != null)
+                {
+                    lock (DrawBlocker)
+                    {
+                        for (int i = 0; i < boxes.Count; i++)
+                        {
+                            DrawPixel((ConsoleColor)boxes[i][0], boxes[i][1], boxes[i][2], boxes[i][3], boxes[i][4]);
                         }
                     }
                 }
             }
             //----
+            /// <summary>
+            /// draws box at point (отрисовывает квадратный элемент в точке) 
+            /// </summary>
+            /// <param name="color">color to draw (цвет для отрисовки)</param>
+            /// <param name="x">point X coordinate (координата точки по оси X)</param>
+            /// <param name="y">point Y coordinate (координата точки по оси Y)</param>
+            void DrawBox(ConsoleColor color, int x, int y)
+            {
+                boxes = builder.AddPixel(color, x, y);
+                if (boxes != null)
+                {
+                    lock (DrawBlocker)
+                    {
+                        for (int i = 0; i < boxes.Count; i++)
+                        {
+                            DrawPixel((ConsoleColor)boxes[i][0], boxes[i][1], boxes[i][2], boxes[i][3], boxes[i][4]);
+                        }
+                    }
+                }
+            }
+        }
+        //----
+        /// <summary>
+        /// draws pixel at point (отрисовывает пиксель в точке) 
+        /// </summary>
+        /// <param name="color">color to draw (цвет для отрисовки)</param>
+        /// <param name="x">point X coordinate (координата точки по оси X)</param>
+        /// <param name="y">point Y coordinate (координата точки по оси Y)</param>
+        /// <param name="sizeX">X-axis size (размер по оси X)</param>
+        /// <param name="sizeX">Y-axis size (размер по оси Y)</param>
+        void DrawPixel(ConsoleColor color, int x, int y, int sizeX = 0, int sizeY = 0)
+        {
+            Console.MoveBufferArea(Math.Max(0, x), Math.Max(0, y), Math.Max(1, sizeX), Math.Max(1, sizeY), (int)WindowSize.X, (int)WindowSize.Y - 1, DefaultSymbol, ConsoleColor.Black, color);
         }
     }
 }

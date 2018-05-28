@@ -11,7 +11,7 @@ namespace ALB
         /// <summary>(базовый цвет для рендеринга сцены)</summary>
         public const ConsoleColor DefaultColor = ConsoleColor.Black;
         /// <summary>(символ для рендеринга сцены)</summary>
-        public static string DefaultSymbol { get; } = " ";
+        public static Char DefaultSymbol { get; } = ' ';
         /// <summary>(размер базовой ячейки координатной сетки)</summary>
         public static Vector GridSize { get; } = new Vector(6, 4);// >=(3,2)
         /// <summary>(размер базовой ячейки координатной сетки)</summary>
@@ -30,6 +30,7 @@ namespace ALB
         public static List<ObjectSingle>[,] WindowArray = new List<ObjectSingle>[(int)WindowSize.X, (int)WindowSize.Y];
         /// <summary>(объект для поочередного доступа к консоли)</summary>
         public static object DrawBlocker = new object();
+        public static object ArrayBlocker = new object();
 
         
 
@@ -39,8 +40,6 @@ namespace ALB
         }
         //========
 
-
-        //========
         /// <summary>
         /// Проверка наличия нулевого значения
         /// </summary>
@@ -52,6 +51,17 @@ namespace ALB
             return value != 0 ? value : replace;
         }
 
+        /// <summary>
+        /// starting method in another thread (запускает метод в отдельном потоке)
+        /// </summary>
+        /// <param name="methodToStart">method to start (метод для запуска)</param>
+        public static void StartThread(ThreadStart methodToStart)
+        {
+            Thread thread = new Thread(methodToStart);
+            thread.Start();
+        }
+
+        //========
         /// <summary>
         /// сheck position X overflow (проверка на выход позиции за пределы сцены)
         /// </summary>
@@ -81,16 +91,6 @@ namespace ALB
             return false;
             else
             return true;
-        }
-
-        /// <summary>
-        /// starting method in another thread (запускает метод в отдельном потоке)
-        /// </summary>
-        /// <param name="methodToStart">method to start (метод для запуска)</param>
-        public static void StartThread(ThreadStart methodToStart)
-        {
-            Thread thread = new Thread(methodToStart);
-            thread.Start();
         }
     }
 }
