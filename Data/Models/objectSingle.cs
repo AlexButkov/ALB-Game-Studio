@@ -141,6 +141,13 @@ namespace ALB
         {
             ObjectSingle newObject = new ObjectSingle(ObjectType);
             newObject.CopyFrom(this);
+            if (ChildList.Count > 0)
+            {
+                for (int i = 0; i < ChildList.Count; i++)
+                {
+                    newObject.ChildList.Insert(i, ChildList[i].CopyThis());
+                }
+            }
             return newObject;
         }
 

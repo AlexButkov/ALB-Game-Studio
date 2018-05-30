@@ -47,8 +47,7 @@ namespace ALB
             {
                 tempArray[i] = new List<Object>();
             }
-            this.ParentObject = parentObject;
-            //SetArrayFull();
+            ParentObject = parentObject;
             StartThread(Monitoring);
         }
 
@@ -58,58 +57,45 @@ namespace ALB
             {
                 if (toDequeue && ParentObject != null)
                 {
-                    lock (QueueBlocker)
+                    while (QueueList.Count > 0)
                     {
-                        while (QueueList.Count > 0)
+                        lock (QueueBlocker)
                         {
                             tempType = QueueList.Dequeue();
-                            if (tempType == Task.copyObject && ParentObject.CopyObject != null)
+                        }
+                        if (tempType == Task.copyObject && ParentObject.CopyObject != null)
+                        {
+                            for (int i = 0; i < tempArray.Length; i++)
                             {
-                                for (int i = 0; i < tempArray.Length; i++)
-                                {
-                                    ParentObject.Value((Task)i) = ParentObject.CopyObject.Value((Task)i);
-                                }
-                                SetArrayFull();
-                                actionToggle[(int)Draw.some] = actionToggle[(int)Draw.layer] = actionToggle[(int)Draw.color] = actionToggle[(int)Draw.vector] = true;
+                                ParentObject.Value((Task)i) = ParentObject.CopyObject.Value((Task)i);
                             }
-                            else
-                            {
-                            SetArray(tempType);
-                            }
-                            switch (tempType)
-                            {
-                                case Task.isDestroyed:
-                                    actionToggle[(int)Draw.destroy] = true; goto case Task.max;
-                                case Task.layer:
-                                    actionToggle[(int)Draw.layer] = true; goto case Task.max;
-                                case Task.color:
-                                    actionToggle[(int)Draw.color] = true; goto case Task.max;
-                                case Task.max:
-                                    actionToggle[(int)Draw.some] = true; break;
-                                case Task.positionX:
-                                    foreach (ObjectSingle Child in ParentObject.ChildList)
-                                    {
-                                        Child.Position.X += (int)tempArray[(int)Task.positionX][tempArray[(int)Task.positionX].Count - 1] - (int)tempArray[(int)Task.positionX][0];
-                                    }
-                                    goto default;
-                               case Task.positionY:
-                                    foreach (ObjectSingle Child in ParentObject.ChildList)
-                                    {
-                                        Child.Position.Y += (int)tempArray[(int)Task.positionY][tempArray[(int)Task.positionY].Count - 1] - (int)tempArray[(int)Task.positionY][0];
-                                    }
-                                    goto default;
-                                default:
-                                    actionToggle[(int)Draw.vector] = true; goto case Task.max;
-                            }
+                            SetArrayFull();
+                            actionToggle[(int)Draw.some] = actionToggle[(int)Draw.layer] = actionToggle[(int)Draw.color] = actionToggle[(int)Draw.vector] = true;
+                        }
+                        else
+                        {
+                        SetArray(tempType);
+                        }
+                        switch (tempType)
+                        {
+                            case Task.isDestroyed:
+                                actionToggle[(int)Draw.destroy] = true; goto case Task.max;
+                            case Task.layer:
+                                actionToggle[(int)Draw.layer] = true; goto case Task.max;
+                            case Task.color:
+                                actionToggle[(int)Draw.color] = true; goto case Task.max;
+                            case Task.max:
+                                actionToggle[(int)Draw.some] = true; break;
+                            default:
+                                actionToggle[(int)Draw.vector] = true; goto case Task.max;
                         }
                     }
                     if (actionToggle[(int)Draw.some])
                     {
-                        view.DrawObject(tempArray, actionToggle, ParentObject, IsParentGroup);
+                        View.DrawObject(tempArray, actionToggle, ParentObject, IsParentGroup);
                         RemoveOldValue();
                     }
                 }
-                Thread.Sleep(DeltaTimeMs);
             }
         }
 

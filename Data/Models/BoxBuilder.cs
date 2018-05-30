@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace ALB
 {
@@ -18,6 +16,8 @@ namespace ALB
         bool isCol;
         bool isInside;
         bool isSame;
+        bool isMax;
+        int squareMax = (int)(WindowSize.X * WindowSize.Y / 6);
         //------
         public List<int[]> LastPixel()
         {
@@ -35,7 +35,7 @@ namespace ALB
                 }
                 isFirst = null;
             }
-            return BoxList.Count > 0 ? BoxList : null;
+            return BoxList ;
         }
 
         public List<int[]> AddPixel(ConsoleColor color, int x, int y)
@@ -47,12 +47,13 @@ namespace ALB
             isCol = isFirst == null ? true : y == currentBox[2] + currentBox[4] && x == currentBox[1];
             isInside = isFirst != false ? true : x >= firstBox[1] && x < (firstBox[1] + firstBox[3]);
             isSame = firstBox[3] == secondBox[3];
+            isMax = firstBox[3] * firstBox[4] > squareMax;
 
             if (isFirst == null)
             {
                 isFirst = true;
             }
-            if (isInside && prevColor == color)
+            if (isInside && prevColor == color && !isMax)
             {
                 if (isRow)
                 {

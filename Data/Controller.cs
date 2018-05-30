@@ -111,7 +111,6 @@ namespace ALB
                     keyX = 0;
                     keyY = 0;
                 }
-                Thread.Sleep(Model.DeltaTimeMs);
             }
         }
 

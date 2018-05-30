@@ -27,19 +27,27 @@ namespace ALB
         /// <summary>(список объектов на сцене)</summary>
         public static List<Object> SceneList = new List<Object>();
         /// <summary>(3D копия окна для хранения фонового цвета и № слоев)</summary>
-        public static List<ObjectSingle>[,] WindowArray = new List<ObjectSingle>[(int)WindowSize.X, (int)WindowSize.Y];
+        public static List<float[]>[,] WindowArray = new List<float[]>[(int)WindowSize.X, (int)WindowSize.Y];
         /// <summary>(объект для поочередного доступа к консоли)</summary>
         public static object DrawBlocker = new object();
         public static object ArrayBlocker = new object();
-
         
+        //---
+        static View view = new View();
 
-        //========
-        public Model() 
+        //========Launcher========
+        static void Main()
         {
+            view.Initializer();
+            view.StartSum();
+            while (true)
+            {
+                Thread.Sleep(DeltaTimeMs);
+                view.UpdateSum();
+            }
+            //Console.ReadKey();
         }
-        //========
-
+        //================
         /// <summary>
         /// Проверка наличия нулевого значения
         /// </summary>

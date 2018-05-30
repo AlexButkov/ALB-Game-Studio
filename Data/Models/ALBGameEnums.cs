@@ -2,6 +2,14 @@
 
 namespace ALB
 {
+    abstract class ALBGame : Model
+    {
+        /// <summary> gets called on startup only (выполняется только при запуске) </summary>
+        abstract public void Start();
+        /// <summary> gets called every frame (выполняется для каждого кадра) </summary>
+        abstract public void Update();
+    }
+
     enum ObjType : int
     {
         Car,

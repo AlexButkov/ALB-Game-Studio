@@ -22,14 +22,21 @@ namespace ALB
             {
                 if (ParentObject != null)
                 {
-                    if (ParentObject.Value(TypeX) != value)
+                    ref var temp = ref ParentObject.Value(TypeX);
+                    if (temp != value)
                     {
-                        ref var temp = ref ParentObject.Value(TypeX);
-                        prevX = temp as int?;
+                        prevX = (int)(temp ?? 0);
                         temp = value;
                         if (prevX != (int)value)
                         {
                             ParentObject.Inspection?.AddTask(TypeX);
+                            if (TypeX == Task.positionX && ParentObject.ChildList.Count > 0)
+                            {
+                                foreach (ObjectSingle Child in ParentObject.ChildList)
+                                {
+                                    Child.Position.X += (int)value - prevX;
+                                }
+                            }
                         }
                     }
                 }
@@ -57,14 +64,21 @@ namespace ALB
             {
                 if (ParentObject != null)
                 {
-                    if (ParentObject.Value(TypeY) != value)
+                    ref var temp = ref ParentObject.Value(TypeY);
+                    if (temp != value)
                     {
-                        ref var temp = ref ParentObject.Value(TypeY);
-                        prevX = temp as int?;
+                        prevY = (int)(temp ?? 0);
                         temp = value;
                         if (prevY != (int)value)
                         {
                             ParentObject.Inspection?.AddTask(TypeY);
+                            if (TypeY == Task.positionY && ParentObject.ChildList.Count > 0)
+                            {
+                                foreach (ObjectSingle Child in ParentObject.ChildList)
+                                {
+                                    Child.Position.Y += (int)value - prevY;
+                                }
+                            }
                         }
                     }
                 }
@@ -80,8 +94,8 @@ namespace ALB
         //---
         protected float x;
         protected float y;
-        protected int? prevX = null;
-        protected int? prevY = null;
+        protected int prevX;
+        protected int prevY;
 
         //====== конструкторы =======
         /// <summary>contain X/Y axes parameters(содержит параметры объекта по осям X/Y)</summary>

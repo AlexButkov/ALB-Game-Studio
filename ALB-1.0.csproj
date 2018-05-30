@@ -42,17 +42,18 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="NewGame.cs" />
+    <Compile Include="SampleGame.cs" />
     <Compile Include="Data\Controller.cs" />
     <Compile Include="Data\Models\BoxBuilder.cs" />
     <Compile Include="Data\Models\Extensions.cs" />
     <Compile Include="Data\Models\Vector.cs" />
-    <Compile Include="Data\Models\Enums.cs" />
+    <Compile Include="Data\Models\ALBGameEnums.cs" />
     <Compile Include="Data\Models\ObjectGroup.cs" />
     <Compile Include="Data\Models\ObjectSingle.cs" />
     <Compile Include="Data\View.cs" />
     <Compile Include="Data\Models\Inspector.cs" />
     <Compile Include="Data\Model.cs" />
-    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSHARP.Targets" />
