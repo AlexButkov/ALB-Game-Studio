@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Threading;
+using System.Collections.Generic;
 
 namespace ALB
 {
+    /// <summary> abstract game logic class (абстрактный класс игровой логики)</summary>
     abstract class ALBGame : Model
     {
         /// <summary> gets called on startup only (выполняется только при запуске) </summary>
@@ -10,42 +13,55 @@ namespace ALB
         abstract public void Update();
     }
 
-    enum ObjType : int
+    /// <summary>
+    /// preset object (преднастроенный объект)
+    /// </summary>
+    enum Preset : int
     {
-        Car,
-        Wheel,
-        Line,
-        House,
-        Tree
+        boxS,
+        boxM,
+        boxL,
+        boxXL,
+        boxXXL,
+        plane
     }
+    /// <summary>
+    /// X-axis side (сторона по оси X)
+    /// </summary>
     enum SideX : int
     {
-        Left=-1,
-        Middle,
-        Right
+        left=-1,
+        middle,
+        right
     }
+    /// <summary>
+    /// Y-axis side (сторона по оси Y)
+    /// </summary>
     enum SideY : int
     {
-        Up=-1,
-        Middle,
-        Down
+        up=-1,
+        middle,
+        down
     }
-    enum Task : int
+    /// <summary>rendering variables names (названия влияющих на рендеринг переменных)</summary>
+    enum Param : int
     {
         isDestroyed,
+        color,
         layer,
         positionX,
         positionY,
         sizeX,
         sizeY,
-        color,
         gapX,
         gapY,
         quantX,
         quantY,
         copyObject,
-        max //max value variable (переменная с максимальным значением)
+        /// <summary>max value variable (переменная с максимальным значением)</summary>
+        max
     }
+    /// <summary>rendering task names (названия задач для рендеринга)</summary>
     enum Draw : int
     { 
         some,
@@ -53,6 +69,7 @@ namespace ALB
         vector,
         layer,
         color,
-        max //max value variable (переменная с максимальным значением)
+        /// <summary>max value variable (переменная с максимальным значением)</summary>
+        max
     }
 }

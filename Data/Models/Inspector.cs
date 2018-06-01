@@ -1,23 +1,26 @@
 ﻿using System;
 using System.Threading;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace ALB
 {
+    /// <summary>
+    /// translates changed variables info into rendering class <see cref="View"/> 
+    /// (передает информацию об измененных переменных в класс для рендеринга <see cref="View"/>)
+    /// </summary>
     class Inspector : Model
     {
         /// <summary>(очередь событий для инспектора)</summary>
-        public Queue<Task> QueueList = new Queue<Task>();
+        public Queue<Param> QueueList = new Queue<Param>();
         View view = new View();
         /// <summary>(объект для поочередного доступа к очереди)</summary>
         public object QueueBlocker = new object();
         public ObjectSingle ParentObject { private get; set; }
         public bool IsParentGroup;
         /// <summary>(массив переменных для инспектора)</summary>
-        protected List<dynamic>[] tempArray = new List<dynamic>[(int)Task.max];
+        protected List<dynamic>[] tempArray = new List<dynamic>[(int)Param.max];
         protected bool[] actionToggle = new bool[(int)Draw.max];
-        protected Task tempType;
+        protected Param tempType;
         protected bool toDequeue;
         //=========
         public Inspector(ObjectSingle parentObject)
@@ -30,7 +33,7 @@ namespace ALB
             Initialize(parentObject);
         }
         //=========
-        public void AddTask(Task taskType)
+        public void AddTask(Param taskType)
         {
             lock (QueueBlocker)
             {
@@ -63,11 +66,11 @@ namespace ALB
                         {
                             tempType = QueueList.Dequeue();
                         }
-                        if (tempType == Task.copyObject && ParentObject.CopyObject != null)
+                        if (tempType == Param.copyObject && ParentObject.CopyObject != null)
                         {
                             for (int i = 0; i < tempArray.Length; i++)
                             {
-                                ParentObject.Value((Task)i) = ParentObject.CopyObject.Value((Task)i);
+                                ParentObject.Value((Param)i) = ParentObject.CopyObject.Value((Param)i);
                             }
                             SetArrayFull();
                             actionToggle[(int)Draw.some] = actionToggle[(int)Draw.layer] = actionToggle[(int)Draw.color] = actionToggle[(int)Draw.vector] = true;
@@ -78,16 +81,16 @@ namespace ALB
                         }
                         switch (tempType)
                         {
-                            case Task.isDestroyed:
-                                actionToggle[(int)Draw.destroy] = true; goto case Task.max;
-                            case Task.layer:
-                                actionToggle[(int)Draw.layer] = true; goto case Task.max;
-                            case Task.color:
-                                actionToggle[(int)Draw.color] = true; goto case Task.max;
-                            case Task.max:
+                            case Param.isDestroyed:
+                                actionToggle[(int)Draw.destroy] = true; goto case Param.max;
+                            case Param.layer:
+                                actionToggle[(int)Draw.layer] = true; goto case Param.max;
+                            case Param.color:
+                                actionToggle[(int)Draw.color] = true; goto case Param.max;
+                            case Param.max:
                                 actionToggle[(int)Draw.some] = true; break;
                             default:
-                                actionToggle[(int)Draw.vector] = true; goto case Task.max;
+                                actionToggle[(int)Draw.vector] = true; goto case Param.max;
                         }
                     }
                     if (actionToggle[(int)Draw.some])
@@ -103,12 +106,13 @@ namespace ALB
         {
             for (int i = 0; i < tempArray.Length; i++)
             {
-                SetArray((Task)i);
+                SetArray((Param)i);
             }
             toDequeue = true;
+            ParentObject.IsDestroyed = false;
         }
 
-        protected void SetArray(Task varType)
+        protected void SetArray(Param varType)
         {
             tempArray[(int)varType].Add(ParentObject.Value(varType));
         }

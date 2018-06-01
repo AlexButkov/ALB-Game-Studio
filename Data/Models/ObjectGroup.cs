@@ -1,51 +1,53 @@
 ﻿using System;
+using System.Threading;
+using System.Collections.Generic;
 
 namespace ALB
 {
     /// <summary>
-    /// Класс для группы объектов в игре
+    /// game object group class (класс группы игровых объектов)
     /// </summary>
     class ObjectGroup : ObjectSingle
     {
+        /// <summary>
+        /// X/Y-axis interval (интервал по осям X/Y)
+        /// </summary>
         public Vector Gap;
+
+        /// <summary>
+        /// X/Y-axis quantity (количество по осям X/Y)
+        /// </summary>
         public Vector Quant;
 
         //========
         /// <summary>
-        /// конструктор экземпляра класса для группы объектов в игре (в первом параметре указывается объект перечисляемого типа "ObjectType", иначе создается объект с нулевыми значениями)
+        /// constructs game object group class(создает класс группы игровых объектов)
         /// </summary>
-        //public ObjectGroup() { } // : base() { }
-        /// <summary>
-        /// конструктор экземпляра класса для группы объектов (в первом параметре указывается объект перечисляемого типа "ObjectType", иначе создается объект с нулевыми значениями)
-        /// </summary>
-        /// <param name="objectType">тип объекта</param>
-        /// <param name="renderLayer">№ слоя для рендеринга</param>
-        /// <param name="parentObject">ограничивающий движение объект</param>
-        /// <param name="positionX">координата позиции по оси X</param>
-        /// <param name="positionY">координата позиции по оси Y</param>
-        /// <param name="sizeX">размер по оси X</param>
-        /// <param name="sizeY">размер по оси Y</param>
-        /// <param name="color">цвет объекта</param>
-        /// <param name="childObject">список объектов, позиции которых будут связаны с текущим объектом</param>
-        /// <param name="gapX">расстояние между объектами в группе по оси X</param>
-        /// <param name="gapY">расстояние между объектами в группе по оси Y</param>
-        /// <param name="countX">количество объектов в группе по оси X</param>
-        /// <param name="countY">количество объектов в группе по оси Y</param>
-        public ObjectGroup(ObjType objectType, int renderLayer = 0, float? positionX = null, float? positionY = null, float? sizeX = null, float? sizeY = null, ConsoleColor? color = null, float? gapX = null, float? gapY = null, float? countX = null, float? countY = null, params ObjectSingle[] childObject)
-            :base(objectType, renderLayer, positionX, positionY, sizeX, sizeY, color, childObject)
+        /// /// <param name="preset">preset object (преднастроенный объект)</param>
+        /// <param name="tag">defines an object in "Trigger" methods (определяет объект в "Trigger" методах)</param>
+        /// <param name="layer">layer number (номер слоя)</param>
+        /// <param name="positionX">X-axis position coordinate (координата позиции по оси X)</param>
+        /// <param name="positionY">Y-axis position coordinate (координата позиции по оси Y)</param>
+        /// <param name="sizeX">X-axis size (размер по оси X)</param>
+        /// <param name="sizeY">Y-axis size (размер по оси Y)</param>
+        /// <param name="color">defines color (определяет цвет)</param>
+        /// <param name="childObject">position-dependent objects (объекты с зависимыми позициями)</param>        
+        /// <param name="gapX">X-axis interval (интервал по оси X)</param>
+        /// <param name="gapY">Y-axis interval (интервал по оси X)</param>
+        /// <param name="quantX">X-axis quantity (количество по оси X)</param>
+        /// <param name="quantY">Y-axis quantity (количество по оси X)</param>
+        public ObjectGroup(Preset? preset = null, ConsoleColor? color = null, string tag = null, float? layer = null, float? positionX = null, float? positionY = null, float? sizeX = null, float? sizeY = null, float? gapX = null, float? gapY = null, float? quantX = null, float? quantY = null, params ObjectSingle[] childObject)
+            :base(preset, color, tag, layer, positionX, positionY, sizeX, sizeY, childObject)
         {
             Inspection.IsParentGroup = true;
-            Gap = new Vector(null, null, this, Task.gapX, Task.gapY);
-            Quant = new Vector(null, null, this, Task.quantX, Task.quantY);
-            switch (objectType)
-            {   //характеристики объектов по умолчанию
-                case ObjType.Car:     { Gap.X = gapX ??  05; Gap.Y = gapY ??  05; Quant.X = countX ??  05; Quant.Y = countY ??  05; } break;
-                case ObjType.Wheel:   { Gap.X = gapX ??  05; Gap.Y = gapY ??  05; Quant.X = countX ??  05; Quant.Y = countY ??  05; } break;
-                case ObjType.Line:    { Gap.X = gapX ??  05; Gap.Y = gapY ??  05; Quant.X = countX ??  05; Quant.Y = countY ??  05; } break;
-                case ObjType.House:   { Gap.X = gapX ??  05; Gap.Y = gapY ??  05; Quant.X = countX ??  05; Quant.Y = countY ??  05; } break;
-                case ObjType.Tree:    { Gap.X = gapX ??  05; Gap.Y = gapY ??  05; Quant.X = countX ??  05; Quant.Y = countY ??  05; } break;
-                default: break;
-            }
+            Gap = new Vector(null, null, this, Param.gapX, Param.gapY);
+            Quant = new Vector(null, null, this, Param.quantX, Param.quantY);
+            //характеристики объектов по умолчанию
+            Gap.X = gapX ?? 1.GridX();
+            Gap.Y = gapY ?? 1.GridY();
+            Quant.X = quantX ?? 2;
+            Quant.Y = quantY ?? 2;
+            //---
             Inspection.SetArrayFull();
         }
         //========

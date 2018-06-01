@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Threading;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace ALB
 {
+    /// <summary>
+    /// contains main data and entry point of a application (содержит основные данные и точку входа приложения)
+    /// </summary>
     class Model 
     {
         /// <summary>(базовый цвет для рендеринга сцены)</summary>
@@ -28,14 +29,16 @@ namespace ALB
         public static List<Object> SceneList = new List<Object>();
         /// <summary>(3D копия окна для хранения фонового цвета и № слоев)</summary>
         public static List<float[]>[,] WindowArray = new List<float[]>[(int)WindowSize.X, (int)WindowSize.Y];
-        /// <summary>(объект для поочередного доступа к консоли)</summary>
-        public static object DrawBlocker = new object();
+        /// <summary>(объект для поочередного доступа)</summary>
         public static object ArrayBlocker = new object();
         
         //---
         static View view = new View();
 
-        //========Launcher========
+        //================
+        /// <summary>
+        /// entry point of a application (точка входа приложения)
+        /// </summary>
         static void Main()
         {
             view.Initializer();

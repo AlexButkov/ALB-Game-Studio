@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Threading;
+using System.Collections.Generic;
 
 namespace ALB
 {
-    /// <summary>contain X/Y axes parameters (класс для хранения параметров объекта по осям X/Y)</summary>
+    /// <summary>contains X/Y axes parameters (содержит параметры объекта по осям X/Y)</summary>
     class Vector : Model
     {
         public float X
@@ -30,11 +32,14 @@ namespace ALB
                         if (prevX != (int)value)
                         {
                             ParentObject.Inspection?.AddTask(TypeX);
-                            if (TypeX == Task.positionX && ParentObject.ChildList.Count > 0)
+                            if (TypeX == Param.positionX && ParentObject.ChildList.Count > 0)
                             {
                                 foreach (ObjectSingle Child in ParentObject.ChildList)
                                 {
-                                    Child.Position.X += (int)value - prevX;
+                                    if (Child != null)
+                                    {
+                                        Child.Position.X += (int)value - prevX;
+                                    }
                                 }
                             }
                         }
@@ -72,11 +77,14 @@ namespace ALB
                         if (prevY != (int)value)
                         {
                             ParentObject.Inspection?.AddTask(TypeY);
-                            if (TypeY == Task.positionY && ParentObject.ChildList.Count > 0)
+                            if (TypeY == Param.positionY && ParentObject.ChildList.Count > 0)
                             {
                                 foreach (ObjectSingle Child in ParentObject.ChildList)
                                 {
-                                    Child.Position.Y += (int)value - prevY;
+                                    if (Child != null)
+                                    {
+                                        Child.Position.Y += (int)value - prevY;
+                                    }
                                 }
                             }
                         }
@@ -89,8 +97,8 @@ namespace ALB
             }
         }
         public ObjectSingle ParentObject { private get; set; } = null;
-        public Task TypeX { private get; set; }
-        public Task TypeY { private get; set; }
+        public Param TypeX { private get; set; }
+        public Param TypeY { private get; set; }
         //---
         protected float x;
         protected float y;
@@ -104,13 +112,13 @@ namespace ALB
         /// <param name="inspector">parent controller (родительский контроллер)</param>
         /// <param name="typeX">X-axis Task-enum parameter (Task-enum параметр по оси X)</param>
         /// <param name="typeY">Y-axis Task-enum parameter (Task-enum параметр по оси Y)</param>
-        public Vector(int? x = null, int? y = null, ObjectSingle parentObject = null, Task? typeX = null, Task? typeY = null)
+        public Vector(float? x = null, float? y = null, ObjectSingle parentObject = null, Param? typeX = null, Param? typeY = null)
         {
-            TypeX = typeX ?? Task.max;
-            TypeY = typeY ?? Task.max;
+            TypeX = typeX ?? Param.max;
+            TypeY = typeY ?? Param.max;
             ParentObject = parentObject;
-            this.x = x ?? 0;
-            this.y = y ?? 0;
+            X = x ?? 0;
+            Y = y ?? 0;
         }
         //=============
     }

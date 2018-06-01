@@ -1,20 +1,22 @@
 ﻿using System;
+using System.Threading;
 using System.Collections.Generic;
 
 namespace ALB
 {
+    /// <summary> game logic class (класс для игровой логики)</summary>
     class NewGame : ALBGame
     {
-        ObjectSingle plane;
+        
+        /// <summary> gets called on startup only (выполняется только при запуске) </summary>
         public override void Start()
         {
-            plane = new ObjectSingle(ObjType.Tree, 0.1f, null, null, WindowSize.X, WindowSize.Y, ConsoleColor.Gray);
 
         }
-
+        /// <summary> gets called every frame (выполняется для каждого кадра) </summary>
         public override void Update()
         {
-            plane.MoveAside(1,SideX.Left, SideY.Middle);
+
         }
     }
 }

@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Threading;
-using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 
 namespace ALB
 {
+    /// <summary>
+    /// provides game objects rendering (обеспечивает рендеринг игровых объектов)
+    /// </summary>
     class View : Model
     {
         public Action StartSum;
@@ -60,20 +62,20 @@ namespace ALB
             List<int[]> boxes;
             bool isLast;
             ConsoleColor locol;
-            ConsoleColor col = (ConsoleColor)tempArray[(int)Task.color][tempArray[(int)Task.color].Count - 1];
-            float lay = (float)tempArray[(int)Task.layer][tempArray[(int)Task.layer].Count - 1];
+            ConsoleColor col = (ConsoleColor)tempArray[(int)Param.color][tempArray[(int)Param.color].Count - 1];
+            float lay = (float)tempArray[(int)Param.layer][tempArray[(int)Param.layer].Count - 1];
             //current fixed values(текущие фиксированные значения)
-            int sx = (int)tempArray[(int)Task.sizeX][tempArray[(int)Task.sizeX].Count - 1];
-            int sy = (int)tempArray[(int)Task.sizeY][tempArray[(int)Task.sizeY].Count - 1];
-            int px = (int)tempArray[(int)Task.positionX][tempArray[(int)Task.positionX].Count - 1] + (int)WindowSize.X / 2 - sx / 2;
-            int py = (int)tempArray[(int)Task.positionY][tempArray[(int)Task.positionY].Count - 1] + (int)WindowSize.Y / 2 - sy / 2;
+            int sx = (int)tempArray[(int)Param.sizeX][tempArray[(int)Param.sizeX].Count - 1];
+            int sy = (int)tempArray[(int)Param.sizeY][tempArray[(int)Param.sizeY].Count - 1];
+            int px = (int)tempArray[(int)Param.positionX][tempArray[(int)Param.positionX].Count - 1] + (int)WindowSize.X / 2 - sx / 2;
+            int py = (int)tempArray[(int)Param.positionY][tempArray[(int)Param.positionY].Count - 1] + (int)WindowSize.Y / 2 - sy / 2;
             int sumX;
             int sumY;
             //previous values(предыдущие значения)
-            int _sx = (int)tempArray[(int)Task.sizeX][0];
-            int _sy = (int)tempArray[(int)Task.sizeY][0];
-            int _px = (int)tempArray[(int)Task.positionX][0] + (int)WindowSize.X / 2 - _sx / 2;
-            int _py = (int)tempArray[(int)Task.positionY][0] + (int)WindowSize.Y / 2 - _sy / 2;
+            int _sx = (int)tempArray[(int)Param.sizeX][0];
+            int _sy = (int)tempArray[(int)Param.sizeY][0];
+            int _px = (int)tempArray[(int)Param.positionX][0] + (int)WindowSize.X / 2 - _sx / 2;
+            int _py = (int)tempArray[(int)Param.positionY][0] + (int)WindowSize.Y / 2 - _sy / 2;
             int _sumX;
             int _sumY;
             //---
@@ -184,23 +186,23 @@ namespace ALB
             void RedrawGroup(bool isPartial, bool isRemove)
             {
                 //current fixed values(текущие фиксированные значения)
-                int gx = (int)tempArray[(int)Task.gapX][tempArray[(int)Task.gapX].Count - 1] + sx;
-                int gy = (int)tempArray[(int)Task.gapY][tempArray[(int)Task.gapY].Count - 1] + sy;
-                int qx = (int)tempArray[(int)Task.quantX][tempArray[(int)Task.quantX].Count - 1];
-                int qy = (int)tempArray[(int)Task.quantY][tempArray[(int)Task.quantY].Count - 1];
+                int gx = (int)tempArray[(int)Param.gapX][tempArray[(int)Param.gapX].Count - 1] + sx;
+                int gy = (int)tempArray[(int)Param.gapY][tempArray[(int)Param.gapY].Count - 1] + sy;
+                int qx = (int)tempArray[(int)Param.quantX][tempArray[(int)Param.quantX].Count - 1];
+                int qy = (int)tempArray[(int)Param.quantY][tempArray[(int)Param.quantY].Count - 1];
                 int hx = (sx + gx * (qx - 1)) / 2;
                 int hy = (sy + gy * (qy - 1)) / 2;
-                px = (int)tempArray[(int)Task.positionX][tempArray[(int)Task.positionX].Count - 1] + (int)WindowSize.X / 2 - hx;
-                py = (int)tempArray[(int)Task.positionY][tempArray[(int)Task.positionY].Count - 1] + (int)WindowSize.Y / 2 - hy;
+                px = (int)tempArray[(int)Param.positionX][tempArray[(int)Param.positionX].Count - 1] + (int)WindowSize.X / 2 - hx;
+                py = (int)tempArray[(int)Param.positionY][tempArray[(int)Param.positionY].Count - 1] + (int)WindowSize.Y / 2 - hy;
                 //previous values(предыдущие значения)
-                int _gx = (int)tempArray[(int)Task.gapX][0] + _sx;
-                int _gy = (int)tempArray[(int)Task.gapY][0] + _sy;
-                int _qx = (int)tempArray[(int)Task.quantX][0];
-                int _qy = (int)tempArray[(int)Task.quantY][0];
+                int _gx = (int)tempArray[(int)Param.gapX][0] + _sx;
+                int _gy = (int)tempArray[(int)Param.gapY][0] + _sy;
+                int _qx = (int)tempArray[(int)Param.quantX][0];
+                int _qy = (int)tempArray[(int)Param.quantY][0];
                 int _hx = (_sx + _gx * (_qx - 1)) / 2;
                 int _hy = (_sy + _gy * (_qy - 1)) / 2;
-                _px = (int)tempArray[(int)Task.positionX][0] + (int)WindowSize.X / 2 - _hx;
-                _py = (int)tempArray[(int)Task.positionY][0] + (int)WindowSize.Y / 2 - _hy;
+                _px = (int)tempArray[(int)Param.positionX][0] + (int)WindowSize.X / 2 - _hx;
+                _py = (int)tempArray[(int)Param.positionY][0] + (int)WindowSize.Y / 2 - _hy;
                 if (isRemove)
                 {
                     lock (ArrayBlocker)
@@ -364,10 +366,7 @@ namespace ALB
         /// <param name="sizeX">Y-axis size (размер по оси Y)</param>
         static void DrawPixel(ConsoleColor color, int x, int y, int sizeX = 0, int sizeY = 0)
         {
-            lock (DrawBlocker)
-            {
             Console.MoveBufferArea(Math.Max(0, x), Math.Max(0, y), Math.Max(1, sizeX), Math.Max(1, sizeY), (int)WindowSize.X, (int)WindowSize.Y - 1, DefaultSymbol, ConsoleColor.Black, color);
-            }
         }
     }
 }

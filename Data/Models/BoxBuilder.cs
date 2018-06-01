@@ -1,8 +1,12 @@
 ﻿using System;
+using System.Threading;
 using System.Collections.Generic;
 
 namespace ALB
 {
+    /// <summary>
+    /// increases rendering speed (повышает скорость рендеринга)
+    /// </summary>
     class BoxBuilder : Model
     {
         public List<int[]> BoxList { get; } = new List<int[]>();
@@ -17,7 +21,7 @@ namespace ALB
         bool isInside;
         bool isSame;
         bool isMax;
-        int squareMax = (int)(WindowSize.X * WindowSize.Y / 6);
+        int squareMax = 10000;
         //------
         public List<int[]> LastPixel()
         {

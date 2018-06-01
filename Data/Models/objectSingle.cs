@@ -1,124 +1,164 @@
 ﻿using System;
 using System.Threading;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace ALB
 {
     /// <summary>
-    /// Базовый класс для объекта в игре
+    /// game object class (класс игрового объекта)
     /// </summary>
     class ObjectSingle : Model
     {
+        /// <summary>
+        /// XY-axis position coordinates (координата позиции по осям XY)
+        /// </summary>
         public Vector Position;
+
+        /// <summary>
+        /// XY-axis sizes (размеры по осям XY)
+        /// </summary>
         public Vector Size;
+
+        /// <summary>
+        /// hides object if true (скрывает объект если true)
+        /// </summary>
         public bool IsDestroyed
         {
-            get { return Value(Task.isDestroyed) ?? default(bool); }
+            get { return Value(Param.isDestroyed) ?? default(bool); }
             set
             {
-                ref var temp = ref Value(Task.isDestroyed);
+                ref var temp = ref Value(Param.isDestroyed);
                 if (temp != value)
                 {
                     temp = value;
                     if (value)
                     {
-                        Inspection?.AddTask(Task.isDestroyed);
+                        Inspection?.AddTask(Param.isDestroyed);
                     }
                     else
                     {
-                        Inspection?.AddTask(Task.color);
+                        Inspection?.AddTask(Param.color);
                     }
                 }
             }
         }
+
+        /// <summary>
+        /// layer number (номер слоя)
+        /// </summary>
         public float Layer
         {
-            get { return Value(Task.layer) ?? default(float); }
+            get { return Value(Param.layer) ?? default(float); }
             set
             {
-                ref var temp = ref Value(Task.layer);
+                ref var temp = ref Value(Param.layer);
                 if (temp != value)
                 {
                     temp = value;
-                    Inspection?.AddTask(Task.layer);
+                    Inspection?.AddTask(Param.layer);
                 }
             }
         }
+        /// <summary>
+        /// defines color (определяет цвет)
+        /// </summary>
         public ConsoleColor Color
         {
-            get { return Value(Task.color) ?? default(ConsoleColor); }
+            get { return Value(Param.color) ?? default(ConsoleColor); }
             set
             {
-                ref var temp = ref Value(Task.color);
+                ref var temp = ref Value(Param.color);
                 if (temp != value)
                 {
                     temp = value;
-                    Inspection?.AddTask(Task.color);
+                    Inspection?.AddTask(Param.color);
                 }
             }
         }
-        /// <summary>(Для указания значения используется метод CopyFrom())</summary>
+        /// <summary>
+        /// object to copy all parameters from. Use method <see cref="CopyFrom"/> to set 
+        /// (Объект, из которого копируются все параметры. Используйте метод <see cref="CopyFrom"/> для изменения значения)
+        /// </summary>
         public ObjectSingle CopyObject
         {
-            get { return Value(Task.copyObject) ?? default(ObjectSingle); }
-            set
+            get { return Value(Param.copyObject) ?? default(ObjectSingle); }
+            protected set
             {
-                ref var temp = ref Value(Task.copyObject);
+                ref var temp = ref Value(Param.copyObject);
                 if (temp != value)
                 {
                     temp = value;
-                    Inspection?.AddTask(Task.copyObject);
+                    Inspection?.AddTask(Param.copyObject);
                 }
             }
         }
+        /// <summary>
+        /// position-dependent objects (объекты с зависимыми позициями)
+        /// </summary>
         public List<ObjectSingle> ChildList = new List<ObjectSingle>();
-        public Inspector Inspection;
+        /// <summary>
+        /// translates changed variables info into rendering class <see cref="View"/> 
+        /// (передает информацию об измененных переменных в класс для рендеринга <see cref="View"/>)
+        /// </summary>
+        public Inspector Inspection { get; protected set; }
+        /// <summary>
+        /// contains relative position for "Trigger" methods (содержит относительную позицию для "Trigger" методов)
+        /// </summary>
         public bool IsInside;
-        public ObjType ObjectType;
+        /// <summary>
+        /// defines an object in "Trigger" methods (определяет объект в "Trigger" методах)
+        /// </summary>
+        public string Tag;
+
         //---
-        /// <summary>(массив значений переменных, влияющих на отображение объекта)</summary>
+        /// <summary>rendering variable values array (массив значений переменных, влияющих на рендеринг)</summary>
         protected dynamic[] values;
 
 
         //========
         /// <summary>
-        /// конструктор экземпляра базового класса для объекта в игре (в первом параметре указывается объект перечисляемого типа "Scene", иначе создается объект с нулевыми значениями)
+        /// constructs game object class(создает класс игрового объекта)
         /// </summary>
-        //public ObjectSingle() { }
-        /// <summary>
-        /// конструктор экземпляра базового класса для объекта в игре (в первом параметре указывается объект перечисляемого типа "Scene", иначе создается объект с нулевыми значениями)
-        /// </summary>
-        /// <param name="objectType">тип объекта</param>
-        /// <param name="renderLayer">№ слоя для рендеринга</param>
-        /// <param name="parentObject">ограничивающий движение объект</param>
-        /// <param name="positionX">координата позиции по оси X</param>
-        /// <param name="positionY">координата позиции по оси Y</param>
-        /// <param name="sizeX">размер по оси X</param>
-        /// <param name="sizeY">размер по оси Y</param>
-        /// <param name="color">цвет объекта</param>
-        /// <param name="childObject">список объектов, позиции которых будут связаны с текущим объектом</param>
-        public ObjectSingle(ObjType objectType, float? layer = null, float? positionX = null, float? positionY = null, float? sizeX = null, float? sizeY = null, ConsoleColor? color = null, params ObjectSingle[] childObject)
+        /// /// <param name="preset">preset object (преднастроенный объект)</param>
+        /// <param name="tag">defines an object in "Trigger" methods (определяет объект в "Trigger" методах)</param>
+        /// <param name="layer">layer number (номер слоя)</param>
+        /// <param name="positionX">X-axis position coordinate (координата позиции по оси X)</param>
+        /// <param name="positionY">Y-axis position coordinate (координата позиции по оси Y)</param>
+        /// <param name="sizeX">X-axis size (размер по оси X)</param>
+        /// <param name="sizeY">Y-axis size (размер по оси Y)</param>
+        /// <param name="color">defines color (определяет цвет)</param>
+        /// <param name="childObject">position-dependent objects (объекты с зависимыми позициями)</param>
+        public ObjectSingle(Preset? preset = null, ConsoleColor? color = null, string tag = null, float? layer = null, float? positionX = null, float? positionY = null, float? sizeX = null, float? sizeY = null, params ObjectSingle[] childObject)
         {
-            values = new Object[(int)Task.max];
+            values = new Object[(int)Param.max];
             Inspection = new Inspector(this);
-            Position = new Vector(null, null, this, Task.positionX, Task.positionY);
-            Size = new Vector(null, null, this, Task.sizeX, Task.sizeY);
-            switch (objectType)
-            {   //характеристики объектов по умолчанию
-                case ObjType.Car:   { Position.X = positionX ?? 00; Position.Y = positionY ?? 00; Size.X = sizeX ?? 12; Size.Y = sizeY ?? 08; Color = color ?? ConsoleColor.Blue; } break;
-                case ObjType.Wheel: { Position.X = positionX ?? 00; Position.Y = positionY ?? 00; Size.X = sizeX ?? 01; Size.Y = sizeY ?? 01; Color = color ?? ConsoleColor.DarkGray; } break;
-                case ObjType.Line:  { Position.X = positionX ?? 00; Position.Y = positionY ?? 00; Size.X = sizeX ?? 02; Size.Y = sizeY ?? 05; Color = color ?? ConsoleColor.Gray; } break;
-                case ObjType.House: { Position.X = positionX ?? 00; Position.Y = positionY ?? 00; Size.X = sizeX ?? 120; Size.Y = sizeY ?? 80; Color = color ?? ConsoleColor.DarkYellow; } break;
-                case ObjType.Tree:  { Position.X = positionX ?? 00; Position.Y = positionY ?? 00; Size.X = sizeX ?? 08; Size.Y = sizeY ?? 08; Color = color ?? ConsoleColor.Green; } break;
-                default: break;
+            Position = new Vector(null, null, this, Param.positionX, Param.positionY);
+            Size = new Vector(null, null, this, Param.sizeX, Param.sizeY);
+            //---default values (значения по умолчанию)
+            switch (preset)
+            {   
+                case Preset.boxS:   { Size.X = sizeX ??  1.GridX(); Size.Y = sizeY ??  1.GridY(); } break;
+                case Preset.boxM:   { Size.X = sizeX ??  2.GridX(); Size.Y = sizeY ??  2.GridY(); } break;
+                case Preset.boxL:   { Size.X = sizeX ??  4.GridX(); Size.Y = sizeY ??  4.GridY(); } break;
+                case Preset.boxXL:  { Size.X = sizeX ??  8.GridX(); Size.Y = sizeY ??  8.GridY(); } break;
+                case Preset.boxXXL: { Size.X = sizeX ?? 16.GridX(); Size.Y = sizeY ?? 16.GridY(); } break;
+                case Preset.plane:  { Size.X = sizeX ?? WindowSize.X; Size.Y = sizeY ?? WindowSize.Y; } break;
+                default: goto case Preset.boxS;
             }
-            ObjectType = objectType;
+            Color = color ?? ConsoleColor.DarkGray;
+            Tag = tag ?? "";
             Layer = layer ?? default(float);
+            Position.X = positionX ?? default(float);
+            Position.Y = positionY ?? default(float);
+            //---
             for (int i = 0; i < childObject.Length; i++)
             {
-                ChildList.Add(childObject[i]);
+                if (childObject[i]!=null)
+                {
+                    ChildList.Add(childObject[i]);
+                }
             }
+
             SceneList.Add(this);
             if (GetType() != typeof(ObjectGroup))
             {
@@ -126,26 +166,45 @@ namespace ALB
             }
         }
         //========
-        public ref dynamic Value(Task task)
+        /// <summary>provides access to rendering variable values array (обеспечивает доступ к массиву значений переменных, влияющих на рендеринг)</summary>
+        public ref dynamic Value(Param task)
         {
             return ref values[(int)task];
         }
-        
+
         //---
+        /// <summary>
+        /// provides copying selected object parameters to this one.
+        /// (обеспечивает копирование параметров из выбранного объекта в этот)
+        /// </summary>
+        /// <param name="copyObject">object to copy all parameters from (Объект, из которого копируются все параметры)</param>
         public void CopyFrom(ObjectSingle copyObject)
         {
+            IsDestroyed = true;
             CopyObject = copyObject;
+            while (IsDestroyed) { }
         }
-
+        /// <summary>
+        /// returns this object copy
+        /// (возвращает копию этого объекта)
+        /// </summary>
         public virtual ObjectSingle CopyThis()
         {
-            ObjectSingle newObject = new ObjectSingle(ObjectType);
+            ObjectSingle newObject = new ObjectSingle();
             newObject.CopyFrom(this);
             if (ChildList.Count > 0)
             {
                 for (int i = 0; i < ChildList.Count; i++)
                 {
-                    newObject.ChildList.Insert(i, ChildList[i].CopyThis());
+                    int j = 0;
+                    if (newObject.Equals(ChildList[i]))
+                    {
+                        j++;
+                    }
+                    else
+                    {
+                        newObject.ChildList.Insert(i - j, ChildList[i]?.CopyThis());
+                    }
                 }
             }
             return newObject;
@@ -190,28 +249,28 @@ namespace ALB
         }
         //---
         
-        public bool TriggerEnter(out List<ObjectSingle> returnList, ObjType? objType = null)
+        public bool TriggerEnter(out List<ObjectSingle> returnList, string tag = null)
         {
             bool current = true;
             bool previous = false;
-            return Trigger(out returnList, objType, current, previous);
+            return Trigger(out returnList, tag, current, previous);
         }
 
-        public bool TriggerStay(out List<ObjectSingle> returnList, ObjType? objType = null)
+        public bool TriggerStay(out List<ObjectSingle> returnList, string tag = null)
         {
             bool current = true;
             bool previous = true;
-            return Trigger(out returnList, objType, current, previous);
+            return Trigger(out returnList, tag, current, previous);
         }
 
-        public bool TriggerExit(out List<ObjectSingle> returnList, ObjType? objType = null)
+        public bool TriggerExit(out List<ObjectSingle> returnList, string tag = null)
         {
             bool current = false;
             bool previous = true;
-            return Trigger(out returnList, objType, current, previous);
+            return Trigger(out returnList, tag, current, previous);
         }
 
-        bool Trigger(out List<ObjectSingle> returnList, ObjType? objType, bool current, bool previous)
+        bool Trigger(out List<ObjectSingle> returnList, string tag, bool current, bool previous)
         {
             returnList = new List<ObjectSingle>();
             foreach (Object obj in SceneList)
@@ -233,7 +292,7 @@ namespace ALB
                 var otherObject = otherIsGroup ? (ObjectGroup)obj : (ObjectSingle)obj;
 
 
-                if ((objType == null || otherObject.ObjectType == objType) && !otherObject.IsDestroyed)
+                if ((tag == null || otherObject.Tag == tag) && !otherObject.IsDestroyed)
                 {
                     int thisSizeX = thisIsGroup ? (int)Size.X + ((int)Size.X + (int)thisGroup.Gap.X) * ((int)thisGroup.Quant.X - 1) : (int)Size.X;
                     int thisSizeY = thisIsGroup ? (int)Size.Y + ((int)Size.Y + (int)thisGroup.Gap.Y) * ((int)thisGroup.Quant.Y - 1) : (int)Size.Y;
