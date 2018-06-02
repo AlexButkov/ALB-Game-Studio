@@ -22,6 +22,7 @@ namespace ALB
         protected bool[] actionToggle = new bool[(int)Draw.max];
         protected Param tempType;
         protected bool toDequeue;
+        protected bool isStarted;
         //=========
         public Inspector(ObjectSingle parentObject)
         {
@@ -73,7 +74,7 @@ namespace ALB
                                 ParentObject.Value((Param)i) = ParentObject.CopyObject.Value((Param)i);
                             }
                             SetArrayFull();
-                            actionToggle[(int)Draw.some] = actionToggle[(int)Draw.layer] = actionToggle[(int)Draw.color] = actionToggle[(int)Draw.vector] = true;
+                            actionToggle[(int)Draw.some] = actionToggle[(int)Draw.color] = actionToggle[(int)Draw.vector] = true;
                         }
                         else
                         {
@@ -81,10 +82,10 @@ namespace ALB
                         }
                         switch (tempType)
                         {
-                            case Param.isDestroyed:
+                            case Param.isDrawn:
                                 actionToggle[(int)Draw.destroy] = true; goto case Param.max;
                             case Param.layer:
-                                actionToggle[(int)Draw.layer] = true; goto case Param.max;
+                                goto case Param.color;
                             case Param.color:
                                 actionToggle[(int)Draw.color] = true; goto case Param.max;
                             case Param.max:
@@ -96,6 +97,11 @@ namespace ALB
                     if (actionToggle[(int)Draw.some])
                     {
                         View.DrawObject(tempArray, actionToggle, ParentObject, IsParentGroup);
+                        if (!isStarted)
+                        {
+                            ParentObject.IsDrawn = true;
+                            isStarted = true;
+                        }
                         RemoveOldValue();
                     }
                 }
@@ -109,7 +115,6 @@ namespace ALB
                 SetArray((Param)i);
             }
             toDequeue = true;
-            ParentObject.IsDestroyed = false;
         }
 
         protected void SetArray(Param varType)

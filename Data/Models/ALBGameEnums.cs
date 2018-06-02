@@ -46,7 +46,7 @@ namespace ALB
     /// <summary>rendering variables names (названия влияющих на рендеринг переменных)</summary>
     enum Param : int
     {
-        isDestroyed,
+        isDrawn,
         color,
         layer,
         positionX,
@@ -67,7 +67,6 @@ namespace ALB
         some,
         destroy,
         vector,
-        layer,
         color,
         /// <summary>max value variable (переменная с максимальным значением)</summary>
         max

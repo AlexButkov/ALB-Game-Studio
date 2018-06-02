@@ -10,7 +10,13 @@ namespace ALB
     /// </summary>
     class View : Model
     {
+        /// <summary>
+        /// (делегат для методов Start из всех наследников класса <see cref="ALBGame"/>)
+        /// </summary>
         public Action StartSum;
+        /// <summary>
+        /// (делегат для методов Update из всех наследников класса <see cref="ALBGame"/>)
+        /// </summary>
         public Action UpdateSum;
         //---
         static Type GameLogic = typeof(ALBGame);
@@ -56,6 +62,9 @@ namespace ALB
             }
         }
         //========
+        /// <summary>
+        /// provides game object rendering (Oбеспечивает рендеринг игрового объекта. Вызывается автоматически при изменении соответствующих параметров объекта.)
+        /// </summary>
         public static void DrawObject(List<dynamic>[] tempArray, bool[] actionToggle, ObjectSingle parentObject, bool isParentGroup)
         {
             BoxBuilder builder = new BoxBuilder();
@@ -90,12 +99,12 @@ namespace ALB
                     if (actionToggle[(int)Draw.vector])
                     {
                         RedrawGroup(true, true);
-                        if (!actionToggle[(int)Draw.layer] && !actionToggle[(int)Draw.color])
+                        if (!actionToggle[(int)Draw.color])
                         {
                             RedrawGroup(true, false);
                         }
                     }
-                    if (actionToggle[(int)Draw.layer] || actionToggle[(int)Draw.color])
+                    if (actionToggle[(int)Draw.color])
                     {
                         RedrawGroup(false, false);
                     }
@@ -116,12 +125,12 @@ namespace ALB
                     if (actionToggle[(int)Draw.vector])
                     {
                         RedrawSingle(true, true);
-                        if (!actionToggle[(int)Draw.layer] && !actionToggle[(int)Draw.color])
+                        if (!actionToggle[(int)Draw.color])
                         {
                             RedrawSingle(true, false);
                         }
                     }
-                    if (actionToggle[(int)Draw.layer] || actionToggle[(int)Draw.color])
+                    if (actionToggle[(int)Draw.color])
                     {
                         RedrawSingle(false, false);
                     }
@@ -136,7 +145,6 @@ namespace ALB
             /// <summary>
             /// Создание (отрисовка) объекта либо его удаление.
             /// </summary>
-            /// <param name="toDestroy">Удалить объект если "true". (Создать - "false", по умолчанию) </param>
             void RedrawSingle(bool isPartial, bool isRemove)
             {
                 if (isRemove)
@@ -181,8 +189,6 @@ namespace ALB
             /// <summary>
             /// Создание (отрисовка) группы объектов либо ее удаление.
             /// </summary>
-            /// <param name="SceneGroup">Принимаемая группа объектов</param>
-            /// <param name="toDestroy">Удалить объект если "true". (Создать - "false", по умолчанию) </param>
             void RedrawGroup(bool isPartial, bool isRemove)
             {
                 //current fixed values(текущие фиксированные значения)
@@ -266,7 +272,7 @@ namespace ALB
                             {
                                 DrawBox(col, x, y);
                             }
-                            if (actionToggle[(int)Draw.layer] || actionToggle[(int)Draw.color])
+                            if (actionToggle[(int)Draw.color])
                             {
                                 WindowArray[x, y].RemoveAll(obj => obj[2].Equals(parentObject.GetHashCode()));
                             }

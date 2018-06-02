@@ -7,13 +7,16 @@ namespace ALB
     /// <summary>contains X/Y axes parameters (содержит параметры объекта по осям X/Y)</summary>
     class Vector : Model
     {
+        /// <summary>
+        /// X-axis parameter (параметр по оси X)</param>
+        /// </summary>
         public float X
         {
             get
             {
                 if (ParentObject != null)
                 {
-                    return ParentObject.Value(TypeX) ?? default(float);
+                    return ParentObject.Value(NameX) ?? default(float);
                 }
                 else
                 {
@@ -24,15 +27,19 @@ namespace ALB
             {
                 if (ParentObject != null)
                 {
-                    ref var temp = ref ParentObject.Value(TypeX);
+                    ref var temp = ref ParentObject.Value(NameX);
                     if (temp != value)
                     {
                         prevX = (int)(temp ?? 0);
                         temp = value;
                         if (prevX != (int)value)
                         {
-                            ParentObject.Inspection?.AddTask(TypeX);
-                            if (TypeX == Param.positionX && ParentObject.ChildList.Count > 0)
+                            ParentObject.Inspection?.AddTask(NameX);
+                            if (ParentObject.IsTextured)
+                            {
+                                ParentObject.Inspection?.AddTask(Param.color);
+                            }
+                            if (NameX == Param.positionX && ParentObject.ChildList.Count > 0)
                             {
                                 foreach (ObjectSingle Child in ParentObject.ChildList)
                                 {
@@ -52,13 +59,16 @@ namespace ALB
             }
         }
 
+        /// <summary>
+        /// Y-axis parameter (параметр по оси Y)</param>
+        /// </summary>
         public float Y
         {
             get
             {
                 if (ParentObject != null)
                 {
-                    return ParentObject.Value(TypeY) ?? default(float);
+                    return ParentObject.Value(NameY) ?? default(float);
                 }
                 else
                 {
@@ -69,15 +79,19 @@ namespace ALB
             {
                 if (ParentObject != null)
                 {
-                    ref var temp = ref ParentObject.Value(TypeY);
+                    ref var temp = ref ParentObject.Value(NameY);
                     if (temp != value)
                     {
                         prevY = (int)(temp ?? 0);
                         temp = value;
                         if (prevY != (int)value)
                         {
-                            ParentObject.Inspection?.AddTask(TypeY);
-                            if (TypeY == Param.positionY && ParentObject.ChildList.Count > 0)
+                            ParentObject.Inspection?.AddTask(NameY);
+                            if (ParentObject.IsTextured)
+                            {
+                                ParentObject.Inspection?.AddTask(Param.color);
+                            }
+                            if (NameY == Param.positionY && ParentObject.ChildList.Count > 0)
                             {
                                 foreach (ObjectSingle Child in ParentObject.ChildList)
                                 {
@@ -96,9 +110,18 @@ namespace ALB
                 }
             }
         }
+        /// <summary>
+        /// parent object (родительский объект)
+        /// </summary>
         public ObjectSingle ParentObject { private get; set; } = null;
-        public Param TypeX { private get; set; }
-        public Param TypeY { private get; set; }
+        /// <summary>
+        /// X-axis <see cref="Param"/> name (<see cref="Param"/> название по оси X)
+        /// </summary>
+        public Param NameX { private get; set; }
+        /// <summary>
+        /// Y-axis <see cref="Param"/> name (<see cref="Param"/> название по оси Y) 
+        /// </summary>
+        public Param NameY { private get; set; }
         //---
         protected float x;
         protected float y;
@@ -107,15 +130,15 @@ namespace ALB
 
         //====== конструкторы =======
         /// <summary>contain X/Y axes parameters(содержит параметры объекта по осям X/Y)</summary>
-        /// <param name="x">X-axis parameter, calculated using console pixels (параметр по оси X, рассчитываемый по пикселям консоли)</param> 
-        /// <param name="y">Y-axis parameter, calculated using console pixels (параметр по оси Y, рассчитываемый по пикселям консоли)</param> 
-        /// <param name="inspector">parent controller (родительский контроллер)</param>
-        /// <param name="typeX">X-axis Task-enum parameter (Task-enum параметр по оси X)</param>
-        /// <param name="typeY">Y-axis Task-enum parameter (Task-enum параметр по оси Y)</param>
-        public Vector(float? x = null, float? y = null, ObjectSingle parentObject = null, Param? typeX = null, Param? typeY = null)
+        /// <param name="x">X-axis parameter (параметр по оси X)</param> 
+        /// <param name="y">Y-axis parameter (параметр по оси Y)</param> 
+        /// <param name="parentObject">parent object (родительский объект)</param>
+        /// <param name="nameX">X-axis <see cref="Param"/> name (<see cref="Param"/> название по оси X)</param>
+        /// <param name="nameY">Y-axis <see cref="Param"/> name (<see cref="Param"/> название по оси Y)</param>
+        public Vector(float? x = null, float? y = null, ObjectSingle parentObject = null, Param? nameX = null, Param? nameY = null)
         {
-            TypeX = typeX ?? Param.max;
-            TypeY = typeY ?? Param.max;
+            NameX = nameX ?? Param.max;
+            NameY = nameY ?? Param.max;
             ParentObject = parentObject;
             X = x ?? 0;
             Y = y ?? 0;

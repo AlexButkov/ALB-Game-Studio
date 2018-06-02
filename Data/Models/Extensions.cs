@@ -10,8 +10,9 @@ namespace ALB
     public static class Extensions
     {
 
+
         /// <summary>
-        /// convert grid quantity to X-axis parameter, calculated using GridSize variable (конвертирует количество ячеек в значение для координаты X, рассчитываемое по переменной GridSize)
+        /// converts grid quantity to X-axis parameter, calculated using GridSize variable (конвертирует количество ячеек в значение для координаты X, рассчитываемое по переменной GridSize)
         /// </summary>
         public static int GridX(this int size)
         {
@@ -19,7 +20,7 @@ namespace ALB
         }
 
         /// <summary>
-        /// convert grid quantity to Y-axis parameter, calculated using GridSize variable (конвертирует количество ячеек в значение для координаты Y, рассчитываемое по переменной GridSize)
+        /// converts grid quantity to Y-axis parameter, calculated using GridSize variable (конвертирует количество ячеек в значение для координаты Y, рассчитываемое по переменной GridSize)
         /// </summary>
         public static int GridY(this int size)
         {
@@ -27,7 +28,7 @@ namespace ALB
         }
 
         /// <summary>
-        /// convert grid quantity to X-axis parameter, calculated using GridSize variable (конвертирует количество ячеек в значение для координаты X, рассчитываемое по переменной GridSize)
+        /// converts grid quantity to X-axis parameter, calculated using GridSize variable (конвертирует количество ячеек в значение для координаты X, рассчитываемое по переменной GridSize)
         /// </summary>
         public static float GridX(this float size)
         {
@@ -35,7 +36,7 @@ namespace ALB
         }
 
         /// <summary>
-        /// convert grid quantity to Y-axis parameter, calculated using GridSize variable (конвертирует количество ячеек в значение для координаты Y, рассчитываемое по переменной GridSize)
+        /// converts grid quantity to Y-axis parameter, calculated using GridSize variable (конвертирует количество ячеек в значение для координаты Y, рассчитываемое по переменной GridSize)
         /// </summary>
         public static float GridY(this float size)
         {

@@ -4,7 +4,9 @@ using System.Collections.Generic;
 
 namespace ALB
 {
-    /// <summary> game logic class (класс для игровой логики)</summary>
+    /// <summary> 
+    /// game logic class (класс для игровой логики)
+    /// </summary>
     class NewGame : ALBGame
     {
         

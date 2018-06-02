@@ -25,8 +25,13 @@ namespace ALB
         static float sqrt = (float)(1 / Math.Sqrt(2));
         //======
 
-        /// <summary> </summary>
-        public static void MoveByKey(this ObjectSingle objectToMove, float speed, float? stopDistance = null )
+
+        /// <summary>
+        /// (перемещает этот объект в направлении нажатой клавиши-стрелки или WASD)
+        /// </summary>
+        /// <param name="speed">(скорость перемещения)</param>
+        /// <param name="stopDistance">(Дистанция до остановки. В случае null остановки нет.)</param>
+        public static void MoveByWASD(this ObjectSingle objectToMove, float speed, float? stopDistance = null )
         {
             if (!getKeyIsOn)
             {
@@ -46,7 +51,12 @@ namespace ALB
             
         }
 
-        /// <summary> </summary>
+        /// <summary>
+        /// (перемещает этот объект в выбранном направлении)
+        /// </summary>
+        /// <param name="speed">(скорость перемещения)</param>
+        /// <param name="typeX">(<see cref="SideX"/> направление по оси X)</param>
+        /// <param name="typeY">(<see cref="SideY"/> направление по оси X)</param>
         public static void MoveAside(this ObjectSingle objectToMove, float speed, SideX typeX = SideX.middle, SideY typeY = SideY.middle)
         {
             int kX = 0;
@@ -72,7 +82,11 @@ namespace ALB
             Move(objectToMove, speed, kX, kY);
         }
 
-        /// <summary> </summary>
+        /// <summary>
+        /// (перемещает этот объект в направлении целевого объекта)
+        /// </summary>
+        /// <param name="speed">(скорость перемещения)</param>
+        /// <param name="targetObject">(целевой объект)</param>
         public static void MoveTowards(this ObjectSingle objectToMove, float speed, ObjectSingle targetObject)
         {
             int kX = (int)(targetObject.Position.X - objectToMove.Position.X);
@@ -80,7 +94,11 @@ namespace ALB
             Move(objectToMove, speed, kX, kY);       
         }
 
-        /// <summary> </summary>
+        /// <summary>
+        /// (перемещает этот объект в направлении целевой позиции)
+        /// </summary>
+        /// <param name="speed">(скорость перемещения)</param>
+        /// <param name="targetObject">(целевая позиция)</param>
         public static void MoveTowards(this ObjectSingle objectToMove, float speed, Vector targetPosition)
         {
             int kX = (int)(targetPosition.X - objectToMove.Position.X);
@@ -88,7 +106,12 @@ namespace ALB
             Move(objectToMove, speed, kX, kY);
         }
         //---private---
-        /// <summary> </summary>
+        /// <summary>
+        /// (перемещает объект в направлении целевого вектора)
+        /// </summary>
+        /// <param name="speed">(скорость перемещения)</param>
+        /// <param name="targetX">(целевой вектор X)</param>
+        /// <param name="targetX">(целевой вектор Y)</param>
         static void Move(ObjectSingle objectToMove, float speed, int targetX, int targetY )
         {
             if (targetX != 0 || targetY != 0)
@@ -180,5 +203,47 @@ namespace ALB
                 }
             }
         }
+        /// <summary>
+        /// writes this string to position inside object (пишет эту строку на позиции внутри объекта)
+        /// </summary>
+        /// <param name="objectTarget">target object (целевой объект)</param>
+        /// <param name="positionX">object-dependent X-axis position coordinate (координата позиции по оси X относительно центра объекта)</param>
+        /// <param name="positionY">object-dependent Y-axis position coordinate (координата позиции по оси Y относительно центра объекта)</param>
+        /// <param name="stringColor">string color (цвет строки)</param>
+        public static void WriteTo(this string str, ObjectSingle objectTarget, int positionX = 0, int positionY = 0, ConsoleColor stringColor = ConsoleColor.Black)
+        {
+            int max = (int)Model.MainTimer.ElapsedMilliseconds + Model.FixedTimeMs;
+            while (!objectTarget.IsDrawn && (int)Model.MainTimer.ElapsedMilliseconds < max)
+            { }
+            str.WriteTo((int)(objectTarget.Position.X + positionX), (int)(objectTarget.Position.Y + positionY), objectTarget.Color, stringColor);
+            objectTarget.IsTextured = true;
+        }
+        /// <summary>
+        /// writes this string to position (пишет эту строку на позиции)
+        /// </summary>
+        /// <param name="positionX">X-axis position coordinate (координата позиции по оси X)</param>
+        /// <param name="positionY">Y-axis position coordinate (координата позиции по оси Y)</param>
+        /// <param name="backColor">background color (цвет фона)</param>
+        /// <param name="stringColor">string color (цвет строки)</param>
+        public static void WriteTo(this string str, int positionX = 0, int positionY = 0, ConsoleColor backColor = ConsoleColor.White, ConsoleColor stringColor = ConsoleColor.Black)
+        {
+            lock (Model.ArrayBlocker)
+            {
+                int x = positionX + (int)Model.WindowSize.X / 2 - str.Length / 2;
+                int y = positionY + (int)Model.WindowSize.Y / 2;
+                if (x > (int)Model.WindowSize.X - str.Length)
+                {
+                    str = null;
+                }
+                if (Model.CheckPrint(x, y))
+                {
+                    Console.SetCursorPosition(x, y);
+                    Console.BackgroundColor = backColor;
+                    Console.ForegroundColor = stringColor;
+                    Console.Write(str);
+                }
+            }
+        }
+        //---
     }
 }

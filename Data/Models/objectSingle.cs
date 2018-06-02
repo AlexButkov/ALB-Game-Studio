@@ -22,18 +22,18 @@ namespace ALB
         /// <summary>
         /// hides object if true (скрывает объект если true)
         /// </summary>
-        public bool IsDestroyed
+        public bool IsDrawn
         {
-            get { return Value(Param.isDestroyed) ?? default(bool); }
+            get { return Value(Param.isDrawn) ?? default(bool); }
             set
             {
-                ref var temp = ref Value(Param.isDestroyed);
+                ref var temp = ref Value(Param.isDrawn);
                 if (temp != value)
                 {
                     temp = value;
-                    if (value)
+                    if (!value)
                     {
-                        Inspection?.AddTask(Param.isDestroyed);
+                        Inspection?.AddTask(Param.isDrawn);
                     }
                     else
                     {
@@ -102,9 +102,13 @@ namespace ALB
         /// </summary>
         public Inspector Inspection { get; protected set; }
         /// <summary>
-        /// contains relative position for "Trigger" methods (содержит относительную позицию для "Trigger" методов)
+        /// contains relative state for "Trigger" methods (содержит относительное состояние для "Trigger" методов)
         /// </summary>
         public bool IsInside;
+        /// <summary>
+        /// whether contains text (содержит ли текст)
+        /// </summary>
+        public bool IsTextured;
         /// <summary>
         /// defines an object in "Trigger" methods (определяет объект в "Trigger" методах)
         /// </summary>
@@ -180,9 +184,11 @@ namespace ALB
         /// <param name="copyObject">object to copy all parameters from (Объект, из которого копируются все параметры)</param>
         public void CopyFrom(ObjectSingle copyObject)
         {
-            IsDestroyed = true;
+            IsDrawn = false;
             CopyObject = copyObject;
-            while (IsDestroyed) { }
+            int max = (int)MainTimer.ElapsedMilliseconds + FixedTimeMs;
+            while (!IsDrawn && (int)MainTimer.ElapsedMilliseconds < max)
+            { }
         }
         /// <summary>
         /// returns this object copy
@@ -248,7 +254,12 @@ namespace ALB
             }
         }
         //---
-        
+
+        /// <summary>
+        /// (возвращает true в случае появления пересеченных объектов с текущим и добавляет их в принимаемый массив returnList)
+        /// </summary>
+        /// <param name="returnList">(массив пересеченных объектов)</param>
+        /// <param name="tag">(Проверяются на пересечение только объекты с данным тегом. Если равен null, то проверяются все объекты на сцене)</param>
         public bool TriggerEnter(out List<ObjectSingle> returnList, string tag = null)
         {
             bool current = true;
@@ -256,6 +267,11 @@ namespace ALB
             return Trigger(out returnList, tag, current, previous);
         }
 
+        /// <summary>
+        /// (возвращает true в случае присутствия пересеченных объектов с текущим и добавляет их в принимаемый массив returnList)
+        /// </summary>
+        /// <param name="returnList">(массив пересеченных объектов)</param>
+        /// <param name="tag">(Проверяются на пересечение только объекты с данным тегом. Если равен null, то проверяются все объекты на сцене)</param>
         public bool TriggerStay(out List<ObjectSingle> returnList, string tag = null)
         {
             bool current = true;
@@ -263,6 +279,11 @@ namespace ALB
             return Trigger(out returnList, tag, current, previous);
         }
 
+        /// <summary>
+        /// (возвращает true в случае выхода пересеченных объектов с текущим и добавляет их в принимаемый массив returnList)
+        /// </summary>
+        /// <param name="returnList">(массив пересеченных объектов)</param>
+        /// <param name="tag">(Проверяются на пересечение только объекты с данным тегом. Если равен null, то проверяются все объекты на сцене)</param>
         public bool TriggerExit(out List<ObjectSingle> returnList, string tag = null)
         {
             bool current = false;
@@ -292,7 +313,7 @@ namespace ALB
                 var otherObject = otherIsGroup ? (ObjectGroup)obj : (ObjectSingle)obj;
 
 
-                if ((tag == null || otherObject.Tag == tag) && !otherObject.IsDestroyed)
+                if ((tag == null || otherObject.Tag == tag) && otherObject.IsDrawn)
                 {
                     int thisSizeX = thisIsGroup ? (int)Size.X + ((int)Size.X + (int)thisGroup.Gap.X) * ((int)thisGroup.Quant.X - 1) : (int)Size.X;
                     int thisSizeY = thisIsGroup ? (int)Size.Y + ((int)Size.Y + (int)thisGroup.Gap.Y) * ((int)thisGroup.Quant.Y - 1) : (int)Size.Y;
