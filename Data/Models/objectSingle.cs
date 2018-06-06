@@ -39,6 +39,13 @@ namespace ALB
                     {
                         Inspection?.AddTask(Param.color);
                     }
+                    if (ChildList.Count > 0)
+                    {
+                        foreach (ObjectSingle Child in ChildList)
+                        {
+                            Child.IsDrawn = value;
+                        }
+                    }
                 }
             }
         }
@@ -106,22 +113,24 @@ namespace ALB
         /// </summary>
         public bool IsInside;
         /// <summary>
-        /// whether contains text (содержит ли текст)
+        /// whether contains a text (содержит ли текст)
         /// </summary>
         public bool IsTextured;
         /// <summary>
-        /// defines an object in "Trigger" methods (определяет объект в "Trigger" методах)
+        /// defines an object type (определяет тип объекта)
         /// </summary>
         public string Tag;
 
         //---
         /// <summary>rendering variable values array (массив значений переменных, влияющих на рендеринг)</summary>
         protected dynamic[] values;
+        /// <summary>(объект для поочередного доступа к массиву)</summary>
+        protected static object valuesBlocker = new object();
 
 
         //========
         /// <summary>
-        /// constructs game object class(создает класс игрового объекта)
+        /// constructs game object class instance (создает экземпляр класса игрового объекта)
         /// </summary>
         /// /// <param name="preset">preset object (преднастроенный объект)</param>
         /// <param name="tag">defines an object in "Trigger" methods (определяет объект в "Trigger" методах)</param>
@@ -141,11 +150,11 @@ namespace ALB
             //---default values (значения по умолчанию)
             switch (preset)
             {   
-                case Preset.boxS:   { Size.X = sizeX ??  1.GridX(); Size.Y = sizeY ??  1.GridY(); } break;
-                case Preset.boxM:   { Size.X = sizeX ??  2.GridX(); Size.Y = sizeY ??  2.GridY(); } break;
-                case Preset.boxL:   { Size.X = sizeX ??  4.GridX(); Size.Y = sizeY ??  4.GridY(); } break;
-                case Preset.boxXL:  { Size.X = sizeX ??  8.GridX(); Size.Y = sizeY ??  8.GridY(); } break;
-                case Preset.boxXXL: { Size.X = sizeX ?? 16.GridX(); Size.Y = sizeY ?? 16.GridY(); } break;
+                case Preset.boxS:   { Size.X = sizeX ??  1.GridToX(); Size.Y = sizeY ??  1.GridToY(); } break;
+                case Preset.boxM:   { Size.X = sizeX ??  2.GridToX(); Size.Y = sizeY ??  2.GridToY(); } break;
+                case Preset.boxL:   { Size.X = sizeX ??  4.GridToX(); Size.Y = sizeY ??  4.GridToY(); } break;
+                case Preset.boxXL:  { Size.X = sizeX ??  8.GridToX(); Size.Y = sizeY ??  8.GridToY(); } break;
+                case Preset.boxXXL: { Size.X = sizeX ?? 16.GridToX(); Size.Y = sizeY ?? 16.GridToY(); } break;
                 case Preset.plane:  { Size.X = sizeX ?? WindowSize.X; Size.Y = sizeY ?? WindowSize.Y; } break;
                 default: goto case Preset.boxS;
             }
@@ -173,7 +182,10 @@ namespace ALB
         /// <summary>provides access to rendering variable values array (обеспечивает доступ к массиву значений переменных, влияющих на рендеринг)</summary>
         public ref dynamic Value(Param task)
         {
-            return ref values[(int)task];
+            lock (valuesBlocker)
+            {
+                return ref values[(int)task];
+            }
         }
 
         //---
@@ -185,18 +197,34 @@ namespace ALB
         public void CopyFrom(ObjectSingle copyObject)
         {
             IsDrawn = false;
+            Inspection.IsStarted = false;
             CopyObject = copyObject;
-            int max = (int)MainTimer.ElapsedMilliseconds + FixedTimeMs;
+            int sleep = FixedTimeMs * 10;
+            int max = (int)MainTimer.ElapsedMilliseconds + sleep;
             while (!IsDrawn && (int)MainTimer.ElapsedMilliseconds < max)
-            { }
+            {
+                Thread.Sleep(FixedTimeMs);
+            }
+            if (IsDrawn)
+            {
+                Thread.Sleep(sleep);
+            }
         }
         /// <summary>
         /// returns this object copy
         /// (возвращает копию этого объекта)
         /// </summary>
-        public virtual ObjectSingle CopyThis()
+        public ObjectSingle CopyThis()
         {
-            ObjectSingle newObject = new ObjectSingle();
+            ObjectSingle newObject;
+            if (GetType() != typeof(ObjectGroup))
+            {
+                newObject = new ObjectSingle();
+            }
+            else
+            {
+                newObject = new ObjectGroup() as ObjectSingle;
+            }
             newObject.CopyFrom(this);
             if (ChildList.Count > 0)
             {
@@ -221,7 +249,7 @@ namespace ALB
         /// </summary>
         /// <param name="SideX">enum-тип SideX</param>
         /// <param name="SideY">enum-тип SideY</param>
-        public void AlignWithSide(SideX? sideX = null, SideY? sideY = null)
+        public virtual void AlignWithSide(SideX? sideX = null, SideY? sideY = null) 
         {
             if (sideX != null)
             {

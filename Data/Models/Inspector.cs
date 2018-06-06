@@ -12,7 +12,6 @@ namespace ALB
     {
         /// <summary>(очередь событий для инспектора)</summary>
         public Queue<Param> QueueList = new Queue<Param>();
-        View view = new View();
         /// <summary>(объект для поочередного доступа к очереди)</summary>
         public object QueueBlocker = new object();
         public ObjectSingle ParentObject { private get; set; }
@@ -22,7 +21,7 @@ namespace ALB
         protected bool[] actionToggle = new bool[(int)Draw.max];
         protected Param tempType;
         protected bool toDequeue;
-        protected bool isStarted;
+        public bool IsStarted;
         //=========
         public Inspector(ObjectSingle parentObject)
         {
@@ -71,6 +70,10 @@ namespace ALB
                         {
                             for (int i = 0; i < tempArray.Length; i++)
                             {
+                                if ((Param)i == Param.isDrawn)
+                                {
+                                    continue;
+                                }
                                 ParentObject.Value((Param)i) = ParentObject.CopyObject.Value((Param)i);
                             }
                             SetArrayFull();
@@ -97,14 +100,15 @@ namespace ALB
                     if (actionToggle[(int)Draw.some])
                     {
                         View.DrawObject(tempArray, actionToggle, ParentObject, IsParentGroup);
-                        if (!isStarted)
+                        RemoveOldValue();
+                        if (!IsStarted)
                         {
                             ParentObject.IsDrawn = true;
-                            isStarted = true;
+                            IsStarted = true;
                         }
-                        RemoveOldValue();
                     }
                 }
+                Thread.Sleep(FixedTimeMs/2);
             }
         }
 

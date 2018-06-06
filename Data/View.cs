@@ -23,25 +23,30 @@ namespace ALB
         static Assembly assembly = GameLogic.Assembly;
         static Type[] allTypes = assembly.GetTypes();
         //========
-        public View()
-        {
-        }
-        //========
-        public void Initializer()
+        /// <summary>
+        /// (основная инициализация)
+        /// </summary>
+        public void MainInitialize()
         {
             Console.SetWindowSize((int)WindowSize.X, (int)WindowSize.Y);
             Console.SetBufferSize((int)WindowSize.X + 1, (int)WindowSize.Y);//+1: last pixel buffer(буффер для последнего пикселя)
             Console.CursorVisible = false;
             Console.Title = "ALB-1.0";
-
+            
             for (int j = 0; j < WindowSize.Y; j++)
             {
                 for (int i = 0; i < WindowSize.X; i++)
                 {
-                    WindowArray[i,j] = new List<float[]>();
+                    WindowArray[i, j] = new List<float[]>();
                 }
             }
-
+            CheckAllTypes();
+        }
+        /// <summary>
+        /// <see cref="ALBGame"/> class implementation check (проверка наличия подходящей реализации класса <see cref="ALBGame"/>)
+        /// </summary>
+        void CheckAllTypes()
+        {
             for (int i = 0; i < allTypes.Length; i++)
             {
                 Type t = allTypes[i];
@@ -59,6 +64,11 @@ namespace ALB
                         UpdateSum += (Action)Delegate.CreateDelegate(typeof(Action), Instance, update);
                     }
                 }
+            }
+            if (StartSum == null || UpdateSum == null)
+            {
+                Exception newEx = new Exception("There is no appropriate ALBGame class implementation.");
+                throw newEx;
             }
         }
         //========
@@ -147,43 +157,42 @@ namespace ALB
             /// </summary>
             void RedrawSingle(bool isPartial, bool isRemove)
             {
+                
                 if (isRemove)
                 {
-                    lock (ArrayBlocker)
+                    ArrayBlocker.WaitOne();
+                    for (int j = 0; j < _sy; j++)
                     {
-                        for (int j = 0; j < _sy; j++)
+                        for (int i = 0; i < _sx; i++)
                         {
-                            for (int i = 0; i < _sx; i++)
-                            {
-                                isLast = (j + 1 == _sy && i + 1 == _sx) ? true : false;
-                                _sumX = _px + i;
-                                _sumY = _py + j;
-                                sumX = px;
-                                sumY = py;
-                                Remove(_sumX, _sumY, sumX, sumY, isPartial, isLast);
-                            }
+                            isLast = (j + 1 == _sy && i + 1 == _sx) ? true : false;
+                            _sumX = _px + i;
+                            _sumY = _py + j;
+                            sumX = px;
+                            sumY = py;
+                            Remove(_sumX, _sumY, sumX, sumY, isPartial, isLast);
                         }
                     }
+                    ArrayBlocker.ReleaseMutex();
                 }
                 else
                 {
-                    lock (ArrayBlocker)
+                    ArrayBlocker.WaitOne();
+                    for (int j = 0; j < sy; j++)
                     {
-                        for (int j = 0; j < sy; j++)
+                        for (int i = 0; i < sx; i++)
                         {
-                            for (int i = 0; i < sx; i++)
-                            {
-                                isLast = (j + 1 == sy && i + 1 == sx) ? true : false;
-                                sumX = px + i;
-                                sumY = py + j;
-                                _sumX = _px;
-                                _sumY = _py;
-                                Redraw(sumX, sumY, _sumX, _sumY, isPartial, isLast);
-                            }
+                            isLast = (j + 1 == sy && i + 1 == sx) ? true : false;
+                            sumX = px + i;
+                            sumY = py + j;
+                            _sumX = _px;
+                            _sumY = _py;
+                            Redraw(sumX, sumY, _sumX, _sumY, isPartial, isLast);
                         }
                     }
+                    ArrayBlocker.ReleaseMutex();
                 }
-                //Console.BackgroundColor = DefaultColor;
+                
             }
             //----
             /// <summary>
@@ -209,55 +218,55 @@ namespace ALB
                 int _hy = (_sy + _gy * (_qy - 1)) / 2;
                 _px = (int)tempArray[(int)Param.positionX][0] + (int)WindowSize.X / 2 - _hx;
                 _py = (int)tempArray[(int)Param.positionY][0] + (int)WindowSize.Y / 2 - _hy;
+
+                
                 if (isRemove)
                 {
-                    lock (ArrayBlocker)
+                    ArrayBlocker.WaitOne();
+                    for (int l = 0; l < _qy; l++)
                     {
-                        for (int l = 0; l < _qy; l++)
+                        for (int k = 0; k < _qx; k++)
                         {
-                            for (int k = 0; k < _qx; k++)
+                            for (int j = 0; j < _sy; j++)
                             {
-                                for (int j = 0; j < _sy; j++)
+                                for (int i = 0; i < _sx; i++)
                                 {
-                                    for (int i = 0; i < _sx; i++)
-                                    {
-                                        isLast = (l + 1 == _qy && k + 1 == _qx && j + 1 == _sy && i + 1 == _sx) ? true : false;
-                                        _sumX = _px + i + _gx * k;
-                                        _sumY = _py + j + _gy * l;
-                                        sumX = px + gx * k;
-                                        sumY = py + gy * l;
-                                        Remove(_sumX, _sumY, sumX, sumY, isPartial, isLast);
-                                    }
+                                    isLast = (l + 1 == _qy && k + 1 == _qx && j + 1 == _sy && i + 1 == _sx) ? true : false;
+                                    _sumX = _px + i + _gx * k;
+                                    _sumY = _py + j + _gy * l;
+                                    sumX = px + gx * k;
+                                    sumY = py + gy * l;
+                                    Remove(_sumX, _sumY, sumX, sumY, isPartial, isLast);
                                 }
                             }
                         }
                     }
+                    ArrayBlocker.ReleaseMutex();
                 }
                 else
                 {
-                    lock (ArrayBlocker)
+                    ArrayBlocker.WaitOne();
+                    for (int l = 0; l < qy; l++)
                     {
-                        for (int l = 0; l < qy; l++)
+                        for (int k = 0; k < qx; k++)
                         {
-                            for (int k = 0; k < qx; k++)
+                            for (int j = 0; j < sy; j++)
                             {
-                                for (int j = 0; j < sy; j++)
+                                for (int i = 0; i < sx; i++)
                                 {
-                                    for (int i = 0; i < sx; i++)
-                                    {
-                                        isLast = (l + 1 == qy && k + 1 == qx && j + 1 == sy && i + 1 == sx) ? true : false;
-                                        sumX = px + i + gx * k;
-                                        sumY = py + j + gy * l;
-                                        _sumX = _px + _gx * k;
-                                        _sumY = _py + _gy * l;
-                                        Redraw(sumX, sumY, _sumX, _sumY, isPartial, isLast);
-                                    }
+                                    isLast = (l + 1 == qy && k + 1 == qx && j + 1 == sy && i + 1 == sx) ? true : false;
+                                    sumX = px + i + gx * k;
+                                    sumY = py + j + gy * l;
+                                    _sumX = _px + _gx * k;
+                                    _sumY = _py + _gy * l;
+                                    Redraw(sumX, sumY, _sumX, _sumY, isPartial, isLast);
                                 }
                             }
                         }
                     }
+                    ArrayBlocker.ReleaseMutex();
                 }
-
+                
             }
             //----
             void Redraw(int x, int y, int _x, int _y, bool isPartial, bool isItLast)
@@ -266,39 +275,36 @@ namespace ALB
                 {
                     if (!isPartial || !((x >= _x && x < _x + _sx) && (y >= _y && y < _y + _sy)))
                     {
-                        //lock (ArrayBlocker)
-                        //{
-                            if (WindowArray[x, y].Count == 0 || lay >= WindowArray[x, y][0][1])
-                            {
-                                DrawBox(col, x, y);
+                        if (WindowArray[x, y].Count == 0 || lay >= WindowArray[x, y][0][1])
+                        {
+                            DrawBox(col, x, y);
+                        }
+                        if (actionToggle[(int)Draw.color])
+                        {
+                            WindowArray[x, y].RemoveAll(obj => obj[2].Equals(parentObject.GetHashCode()));
+                        }
+                        if (!WindowArray[x, y].Exists(obj => obj[2].Equals(parentObject.GetHashCode())))
+                        {
+                        if (WindowArray[x, y].Count == 0)
+                        {
+                            WindowArray[x, y].Add(new float[] { (int)col, lay, parentObject.GetHashCode() });
                             }
-                            if (actionToggle[(int)Draw.color])
+                            else
                             {
-                                WindowArray[x, y].RemoveAll(obj => obj[2].Equals(parentObject.GetHashCode()));
-                            }
-                            if (!WindowArray[x, y].Exists(obj => obj[2].Equals(parentObject.GetHashCode())))
-                            {
-                            if (WindowArray[x, y].Count == 0)
-                            {
-                                WindowArray[x, y].Add(new float[] { (int)col, lay, parentObject.GetHashCode() });
-                                }
-                                else
+                                for (int n = 0; n < WindowArray[x, y].Count; n++)
                                 {
-                                    for (int n = 0; n < WindowArray[x, y].Count; n++)
+                                    if (lay >= WindowArray[x, y][n][1])
                                     {
-                                        if (lay >= WindowArray[x, y][n][1])
-                                        {
-                                            WindowArray[x, y].Insert(n, new float[] { (int)col, lay, parentObject.GetHashCode() });
-                                            break;
-                                        }
-                                        else if (n == WindowArray[x, y].Count - 1)
-                                        {
-                                            WindowArray[x, y].Add(new float[] { (int)col, lay, parentObject.GetHashCode() });
-                                        }
+                                        WindowArray[x, y].Insert(n, new float[] { (int)col, lay, parentObject.GetHashCode() });
+                                        break;
+                                    }
+                                    else if (n == WindowArray[x, y].Count - 1)
+                                    {
+                                        WindowArray[x, y].Add(new float[] { (int)col, lay, parentObject.GetHashCode() });
                                     }
                                 }
                             }
-                        //}
+                        }
                     }
                 }
                 if (isItLast)
@@ -313,12 +319,9 @@ namespace ALB
                 {
                     if (!isPartial || !((_x >= x && _x < x + sx) && (_y >= y && _y < y + sy)))
                     {
-                        //lock (ArrayBlocker)
-                        //{
-                            WindowArray[_x, _y].RemoveAll(obj => obj[2].Equals(parentObject.GetHashCode()));
+                        WindowArray[_x, _y].RemoveAll(obj => obj[2].Equals(parentObject.GetHashCode()));
                         locol = WindowArray[_x, _y].Count == 0 ? DefaultColor : (ConsoleColor)(int)WindowArray[_x, _y][0][0];
-                            DrawBox(locol, _x, _y);
-                        //}
+                        DrawBox(locol, _x, _y);
                     }
                 }
                 if (isItLast)
@@ -356,7 +359,7 @@ namespace ALB
                 {
                     for (int i = 0; i < boxes.Count; i++)
                     {
-                        DrawPixel((ConsoleColor)boxes[i][0], boxes[i][1], boxes[i][2], boxes[i][3], boxes[i][4]); //(ConsoleColor)boxes[i][0]
+                        DrawPixel((ConsoleColor)boxes[i][0], boxes[i][1], boxes[i][2], boxes[i][3], boxes[i][4]); 
                     }
                 }
             }
@@ -372,7 +375,10 @@ namespace ALB
         /// <param name="sizeX">Y-axis size (размер по оси Y)</param>
         static void DrawPixel(ConsoleColor color, int x, int y, int sizeX = 0, int sizeY = 0)
         {
-            Console.MoveBufferArea(Math.Max(0, x), Math.Max(0, y), Math.Max(1, sizeX), Math.Max(1, sizeY), (int)WindowSize.X, (int)WindowSize.Y - 1, DefaultSymbol, ConsoleColor.Black, color);
+            lock (ConsoleBlocker)
+            {
+                Console.MoveBufferArea(Math.Max(0, x), Math.Max(0, y), Math.Max(1, sizeX), Math.Max(1, sizeY), (int)WindowSize.X, (int)WindowSize.Y - 1, DefaultSymbol, ConsoleColor.Black, color);
+            }
         }
     }
 }

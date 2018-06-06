@@ -10,6 +10,24 @@ namespace ALB
     /// </summary>
     static class Controller
     {
+        /// <summary>
+        /// Last pressed key (последняя нажатая клавиша)
+        /// </summary>
+        public static ConsoleKey? LastKey
+        {
+            get
+            {
+                if (!getKeyIsOn)
+                {
+                    Model.StartThread(GetKey);
+                    getKeyIsOn = true;
+                }
+                return lastKey;
+            }
+            private set { lastKey = value; }
+        }
+        //---
+        static ConsoleKey? lastKey;
         static Stopwatch keyTimer = new Stopwatch();
         static ConsoleKey? keyFirst;
         static ConsoleKey? keySecond;
@@ -23,6 +41,7 @@ namespace ALB
         static float posX;
         static float posY;
         static float sqrt = (float)(1 / Math.Sqrt(2));
+        
         //======
 
 
@@ -42,11 +61,14 @@ namespace ALB
             {
                 stopGap = (float)stopDistance;
                 ObjectToMove = objectToMove;
-                MoveTowards(objectToMove, speed, new Vector(posX, posY));
+                if (LastKey != null && LastKey != ConsoleKey.Enter)
+                {
+                    MoveTowards(objectToMove, speed, new Vector(posX, posY));
+                }
             }
             else
             {
-                Move(objectToMove, speed, keyX, keyY);
+                Move(objectToMove, speed, keyX.GridToX(), keyY.GridToY());
             }
             
         }
@@ -79,7 +101,7 @@ namespace ALB
                 case SideY.down:
                     kY = 1; break;
             }
-            Move(objectToMove, speed, kX, kY);
+            Move(objectToMove, speed, kX.GridToX(), kY.GridToY());
         }
 
         /// <summary>
@@ -89,8 +111,8 @@ namespace ALB
         /// <param name="targetObject">(целевой объект)</param>
         public static void MoveTowards(this ObjectSingle objectToMove, float speed, ObjectSingle targetObject)
         {
-            int kX = (int)(targetObject.Position.X - objectToMove.Position.X);
-            int kY = (int)(targetObject.Position.Y - objectToMove.Position.Y);
+            int kX = (int)targetObject.Position.X - (int)objectToMove.Position.X;
+            int kY = (int)targetObject.Position.Y - (int)objectToMove.Position.Y;
             Move(objectToMove, speed, kX, kY);       
         }
 
@@ -101,8 +123,8 @@ namespace ALB
         /// <param name="targetObject">(целевая позиция)</param>
         public static void MoveTowards(this ObjectSingle objectToMove, float speed, Vector targetPosition)
         {
-            int kX = (int)(targetPosition.X - objectToMove.Position.X);
-            int kY = (int)(targetPosition.Y - objectToMove.Position.Y);
+            int kX = (int)targetPosition.X - (int)objectToMove.Position.X;
+            int kY = (int)targetPosition.Y - (int)objectToMove.Position.Y;
             Move(objectToMove, speed, kX, kY);
         }
         //---private---
@@ -111,14 +133,21 @@ namespace ALB
         /// </summary>
         /// <param name="speed">(скорость перемещения)</param>
         /// <param name="targetX">(целевой вектор X)</param>
-        /// <param name="targetX">(целевой вектор Y)</param>
-        static void Move(ObjectSingle objectToMove, float speed, int targetX, int targetY )
+        /// <param name="targetY">(целевой вектор Y)</param>
+        static void Move(ObjectSingle objectToMove, float speed, int targetX, int targetY)
         {
+            objectToMove.Position.PrevX = (int)objectToMove.Position.X;
+            objectToMove.Position.PrevY = (int)objectToMove.Position.Y;
+
             if (targetX != 0 || targetY != 0)
             {
-                double atang = Math.Atan2(targetY, targetX);
-                objectToMove.Position.X += ((float)Math.Cos(atang)).GridX() * speed * Model.DeltaTime;
-                objectToMove.Position.Y += ((float)Math.Sin(atang)).GridY() * speed * Model.DeltaTime;
+                float gX = targetX.XToGrid();
+                float gY = targetY.YToGrid();
+                double atang = Math.Atan2(gY, gX);
+                float velocityX = (float)Math.Cos(atang) * speed * Model.DeltaTime;
+                float velocityY = (float)Math.Sin(atang) * speed * Model.DeltaTime;
+                objectToMove.Position.X += Math.Sign(gX) * Math.Min(Math.Abs(targetX), Math.Abs(velocityX).GridToX());
+                objectToMove.Position.Y += Math.Sign(gY) * Math.Min(Math.Abs(targetY), Math.Abs(velocityY).GridToY());
             }
         }
 
@@ -126,17 +155,15 @@ namespace ALB
         static void ResetKey()
         {
             float mult = (keyX != 0 && keyY != 0) ? sqrt : 1;
-            posX = (int)(ObjectToMove.Position.X + keyX * stopGap.GridX() * mult);
-            posY = (int)(ObjectToMove.Position.Y + keyY * stopGap.GridY() * mult);
+            posX = (int)(ObjectToMove.Position.X + keyX * stopGap.GridToX() * mult);
+            posY = (int)(ObjectToMove.Position.Y + keyY * stopGap.GridToY() * mult);
         }
 
         static void GetKey()
         {
             while (true)
             {
-                //ConsoleKeyInfo InfoKey = Console.ReadKey(true);
-                //if (InfoKey != null && stopDelta != null)
-                switch (isFirst ? keyFirst = Console.ReadKey(true).Key : keySecond)
+                switch (isFirst ? keyFirst = LastKey = Console.ReadKey(true).Key : keySecond)
                 {
                     case ConsoleKey.W:
                         goto case ConsoleKey.UpArrow;
@@ -162,7 +189,7 @@ namespace ALB
                         }
                         break;
                 }
-                switch (keySecond = Console.ReadKey(true).Key)
+                switch (keySecond = LastKey = Console.ReadKey(true).Key)
                 {
                     case ConsoleKey.W:
                         goto case ConsoleKey.UpArrow;
@@ -204,7 +231,7 @@ namespace ALB
             }
         }
         /// <summary>
-        /// writes this string to position inside object (пишет эту строку на позиции внутри объекта)
+        /// Writes this string to position inside object. For <see cref="ALBGame.Update"/> method only. (Вписывает эту строку на позиции внутри объекта. Только для <see cref="ALBGame.Update"/> метода.)
         /// </summary>
         /// <param name="objectTarget">target object (целевой объект)</param>
         /// <param name="positionX">object-dependent X-axis position coordinate (координата позиции по оси X относительно центра объекта)</param>
@@ -212,14 +239,17 @@ namespace ALB
         /// <param name="stringColor">string color (цвет строки)</param>
         public static void WriteTo(this string str, ObjectSingle objectTarget, int positionX = 0, int positionY = 0, ConsoleColor stringColor = ConsoleColor.Black)
         {
-            int max = (int)Model.MainTimer.ElapsedMilliseconds + Model.FixedTimeMs;
-            while (!objectTarget.IsDrawn && (int)Model.MainTimer.ElapsedMilliseconds < max)
-            { }
-            str.WriteTo((int)(objectTarget.Position.X + positionX), (int)(objectTarget.Position.Y + positionY), objectTarget.Color, stringColor);
-            objectTarget.IsTextured = true;
+            if (objectTarget.Position.PrevX == (int)objectTarget.Position.X && objectTarget.Position.PrevY == (int)objectTarget.Position.Y)
+            {
+                str.WriteTo((int)(objectTarget.Position.X + positionX), (int)(objectTarget.Position.Y + positionY), objectTarget.Color, stringColor);
+            }
+            if (!objectTarget.IsTextured)
+            {
+                objectTarget.IsTextured = true;
+            }
         }
         /// <summary>
-        /// writes this string to position (пишет эту строку на позиции)
+        /// Writes this string to position inside object. For <see cref="ALBGame.Update"/> method only. (Вписывает эту строку на позиции внутри объекта. Только для <see cref="ALBGame.Update"/> метода.)
         /// </summary>
         /// <param name="positionX">X-axis position coordinate (координата позиции по оси X)</param>
         /// <param name="positionY">Y-axis position coordinate (координата позиции по оси Y)</param>
@@ -227,20 +257,18 @@ namespace ALB
         /// <param name="stringColor">string color (цвет строки)</param>
         public static void WriteTo(this string str, int positionX = 0, int positionY = 0, ConsoleColor backColor = ConsoleColor.White, ConsoleColor stringColor = ConsoleColor.Black)
         {
-            lock (Model.ArrayBlocker)
+            int x = positionX + (int)Model.WindowSize.X / 2 - str.Length / 2;
+            int y = positionY + (int)Model.WindowSize.Y / 2;
+            bool isRight = x <= (int)Model.WindowSize.X - str.Length;
+            
+            if (isRight && Model.CheckPrint(x, y))
             {
-                int x = positionX + (int)Model.WindowSize.X / 2 - str.Length / 2;
-                int y = positionY + (int)Model.WindowSize.Y / 2;
-                if (x > (int)Model.WindowSize.X - str.Length)
+                lock (Model.ConsoleBlocker)
                 {
-                    str = null;
-                }
-                if (Model.CheckPrint(x, y))
-                {
-                    Console.SetCursorPosition(x, y);
-                    Console.BackgroundColor = backColor;
-                    Console.ForegroundColor = stringColor;
-                    Console.Write(str);
+                  Console.SetCursorPosition(x, y);
+                  Console.BackgroundColor = backColor;
+                  Console.ForegroundColor = stringColor;
+                  Console.Write(str);
                 }
             }
         }

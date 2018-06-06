@@ -25,14 +25,15 @@ namespace ALB
             }
             set
             {
+                float val = value.Range(MinX, MaxX);
                 if (ParentObject != null)
                 {
                     ref var temp = ref ParentObject.Value(NameX);
-                    if (temp != value)
+                    if (temp != val)
                     {
-                        prevX = (int)(temp ?? 0);
-                        temp = value;
-                        if (prevX != (int)value)
+                        tempX = (int)(temp ?? 0);
+                        temp = val;
+                        if (tempX != (int)val)
                         {
                             ParentObject.Inspection?.AddTask(NameX);
                             if (ParentObject.IsTextured)
@@ -45,7 +46,7 @@ namespace ALB
                                 {
                                     if (Child != null)
                                     {
-                                        Child.Position.X += (int)value - prevX;
+                                        Child.Position.X += (int)val - tempX;
                                     }
                                 }
                             }
@@ -54,7 +55,7 @@ namespace ALB
                 }
                 else
                 {
-                    x = value;
+                    x = val;
                 }
             }
         }
@@ -77,14 +78,15 @@ namespace ALB
             }
             set
             {
+                float val = value.Range(MinY, MaxY);
                 if (ParentObject != null)
                 {
                     ref var temp = ref ParentObject.Value(NameY);
-                    if (temp != value)
+                    if (temp != val)
                     {
-                        prevY = (int)(temp ?? 0);
-                        temp = value;
-                        if (prevY != (int)value)
+                        tempY = (int)(temp ?? 0);
+                        temp = val;
+                        if (tempY != (int)val)
                         {
                             ParentObject.Inspection?.AddTask(NameY);
                             if (ParentObject.IsTextured)
@@ -97,7 +99,7 @@ namespace ALB
                                 {
                                     if (Child != null)
                                     {
-                                        Child.Position.Y += (int)value - prevY;
+                                        Child.Position.Y += (int)val - tempY;
                                     }
                                 }
                             }
@@ -106,27 +108,52 @@ namespace ALB
                 }
                 else
                 {
-                    y = value;
+                    y = val;
                 }
             }
         }
         /// <summary>
+        /// X minimal value (минимальное значение X)
+        /// </summary>
+        public float? MinX;
+        /// <summary>
+        /// Y minimal value (минимальное значение Y)
+        /// </summary>
+        public float? MinY;
+        /// <summary>
+        /// X maximal value (максимальное значение X)
+        /// </summary>
+        public float? MaxX;
+        /// <summary>
+        /// Y maximal value (максимальное значение Y)
+        /// </summary>
+        public float? MaxY;
+        /// <summary>
+        /// X previous value (предыдущее значение X)
+        /// </summary>
+        public int PrevX;
+        /// <summary>
+        /// Y previous value (предыдущее значение Y)
+        /// </summary>
+        public int PrevY;
+        //---
+        /// <summary>
         /// parent object (родительский объект)
         /// </summary>
-        public ObjectSingle ParentObject { private get; set; } = null;
+        protected ObjectSingle ParentObject = null;
         /// <summary>
         /// X-axis <see cref="Param"/> name (<see cref="Param"/> название по оси X)
         /// </summary>
-        public Param NameX { private get; set; }
+        protected Param NameX;
         /// <summary>
         /// Y-axis <see cref="Param"/> name (<see cref="Param"/> название по оси Y) 
         /// </summary>
-        public Param NameY { private get; set; }
+        protected Param NameY;
         //---
-        protected float x;
-        protected float y;
-        protected int prevX;
-        protected int prevY;
+        float x;
+        float y;
+        int tempX;
+        int tempY;
 
         //====== конструкторы =======
         /// <summary>contain X/Y axes parameters(содержит параметры объекта по осям X/Y)</summary>
